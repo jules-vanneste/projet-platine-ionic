@@ -1,13 +1,27 @@
-<ion-view title="Thumb up">
+<ion-view title="Thumbs up">
   <ion-nav-buttons side="left">
     <button menu-toggle="left" class="button button-icon icon ion-navicon"></button>
   </ion-nav-buttons>
   <ion-content class="has-header">
     <div class="list list-inset">
-    <label class="item item-input">
-      <i class="icon ion-search placeholder-icon"></i>
-      <input type="text" placeholder="Où allez-vous ?">
-    </label>
+      <!-- <label>Address : </label><input type="text" id="addresspicker" /> -->
+      <ion-content has-bouncing="false" class="scroll-content  has-header">
+         <div class="scroll" style="-webkit-transform: translate3d(0px, 0px, 0px);">
+            <div class="item item-text-wrap"></div>
+            <label class="item item-input">
+               <input type="text" placeholder="Enter your home address, Apt# and ZIP" ng-model="user.address" googleplace="" class="ng-pristine ng-valid" autocomplete="off"><!-- googleplace -->
+            </label>
+            <div>
+               <button class="button button-block button-calm icon-right ion-chevron-right disable-user-behavior" ng-click="signUp(user)">Setup</button>
+            </div>
+            <div class="ng-binding">
+               api version: 0.0.3
+            </div>
+         </div>
+         <div class="scroll-bar scroll-bar-v">
+            <div class="scroll-bar-indicator scroll-bar-fade-out" style="height: 0px; -webkit-transform: translate3d(0px, 0px, 0px) scaleY(1);"></div>
+         </div>
+      </ion-content>
     </div>
     <div class="list">
       <a class="item item-icon-left item-icon-right" href="#">

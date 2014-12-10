@@ -1,7 +1,7 @@
 {
-  "name": "autostop",
+  "name": "firstapp",
   "version": "1.0.0",
-  "description": "autostop: An Ionic project",
+  "description": "firstApp: An Ionic project",
   "dependencies": {
     "gulp": "^3.5.6",
     "gulp-sass": "^0.7.1",
