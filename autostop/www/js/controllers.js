@@ -33,6 +33,12 @@ angular.module('starter.controllers', [])
   };
 })
 
+.controller('AccueilCtrl', function($scope, $stateParams) {
+})
+
+.controller('ProfilCtrl', function($scope, $stateParams) {
+})
+
 .controller('PlaylistsCtrl', function($scope) {
   $scope.playlists = [
     { title: 'Reggae', id: 1 },
