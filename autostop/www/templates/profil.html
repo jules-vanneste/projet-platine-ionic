@@ -9,10 +9,10 @@
             </label>
         </div>
         <div class="button-bar">
-            <a class="button disabled">Conducteur</a>
-            <a class="button">Auto-stoppeur</a>
+            <a class="button button-green" id="button1" onclick="toggleDiv('button1', 'button2')">Conducteur</a>
+            <a class="button button-stable" id="button2" onclick="toggleDiv('button2', 'button1')">Auto-stoppeur</a>
         </div>
-        <div id="profilConducteur">
+        <div id="divConducteur" class="divToggle">
             <div class="list list-inset">
                 <label class="item item-input">
                     <input type="text" placeholder="Marque">
@@ -51,7 +51,7 @@
                 </div>
             </div>
         </div>
-        <div id="profilAutostoppeur">
+        <div id="divAutostoppeur" class="divToggle" style="display:none;">
             <div class="list">
                 <div class="row item item-input">
                     <label class="col col-75">Participation maximale :</label>
