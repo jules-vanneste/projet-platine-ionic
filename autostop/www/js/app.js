@@ -41,6 +41,16 @@ angular.module('starter', ['ionic', 'starter.controllers', 'ion-google-place'])
       }
     })
 
+    .state('app.itineraire', {
+      url: "/accueil/itineraire",
+      views: {
+        'menuContent' :{
+          templateUrl: "templates/itineraire.html",
+          controller: 'ItineraireCtrl'
+        }
+      }
+    })
+
     .state('app.profil', {
       url: "/profil",
       views: {
