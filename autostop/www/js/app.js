@@ -34,6 +34,7 @@ angular.module('starter', ['ionic', 'starter.controllers'])
             google.maps.event.addListener(scope.gPlace, 'place_changed', function() {
                 scope.$apply(function() {
                     model.$setViewValue(element.val());                
+                    angular.element(autoSearch).controller('ngModel').$render();
                 });
             });
         }
