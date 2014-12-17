@@ -34,7 +34,6 @@ angular.module('starter.controllers', [])
 })
 
 .controller('AccueilCtrl', function($scope, $stateParams) {
-  $scope.gPlace;
 })
 
 .controller('ProfilCtrl', function($scope, $stateParams) {
