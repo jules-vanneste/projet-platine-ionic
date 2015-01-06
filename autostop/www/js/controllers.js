@@ -36,34 +36,117 @@ angular.module('starter.controllers', [])
 .controller('AccueilCtrl', function($scope, $stateParams) {
 })
 
-.controller('ItineraireCtrl', function($scope, $stateParams) {
-})
+.controller('ItineraireCtrl', function($scope, $ionicLoading, $compile) {
+  var latitude, longitude;
+  $scope.directionsService;
+  $scope.directionsService = new google.maps.DirectionsService();
 
-.controller('MapController', function($scope, $stateParams) {
-
-  google.maps.event.addDomListener(window, 'load', function() {
-    var myLatlng = new google.maps.LatLng(37.3000, -120.4833);
+  $scope.init = function() {
+    $scope.directionsDisplay = new google.maps.DirectionsRenderer();
+    var myLatlng = new google.maps.LatLng(43.07493,-89.381388);
 
     var mapOptions = {
       center: myLatlng,
       zoom: 16,
       mapTypeId: google.maps.MapTypeId.ROADMAP
     };
-
     var map = new google.maps.Map(document.getElementById("map"), mapOptions);
 
+    $scope.map = map;
+    $scope.directionsDisplay.setMap(map);
+    $scope.getCurrentPosition();
+  };
+
+  $scope.getCurrentPosition = function() {
+    if(!$scope.map) {
+      return;
+    }
+
+    $scope.loading = $ionicLoading.show({
+      content: 'Getting current location...',
+      showBackdrop: false
+    });
+
     navigator.geolocation.getCurrentPosition(function(pos) {
-      map.setCenter(new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude));
-      var myLocation = new google.maps.Marker({
-        position: new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude),
-        map: map,
-        title: "My Location"
-      });
+      latitude = pos.coords.latitude;
+      longitude = pos.coords.longitude;
+      $scope.map.setCenter(new google.maps.LatLng(latitude, longitude));
+      $scope.loading.hide();
+      $scope.calcRoute();
+    }, function(error) {
+      alert('Unable to get location: ' + error.message);
+    });
+  };
+
+  $scope.calcRoute = function() {
+    var start = "" + latitude + ", " + longitude + "";
+    var end = "50.289264, 2.7678621";
+    var request = {
+      origin:start,
+      destination:end,
+      travelMode: google.maps.TravelMode.DRIVING
+    };
+    $scope.directionsService.route(request, function(result, status) {
+      if (status == google.maps.DirectionsStatus.OK) {
+        $scope.directionsDisplay.setDirections(result);
+      }
+    });
+  };
+})
+
+.controller('MapCtrl', function($scope, $ionicLoading, $compile) {
+  $scope.init = function() {
+    var myLatlng = new google.maps.LatLng(43.07493,-89.381388);
+
+    var mapOptions = {
+      center: myLatlng,
+      zoom: 16,
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+    var map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+    //Marker + infowindow + angularjs compiled ng-click
+    var contentString = "<div><a ng-click='clickTest()'>Click me!</a></div>";
+    var compiled = $compile(contentString)($scope);
+
+    var infowindow = new google.maps.InfoWindow({
+      content: compiled[0]
+    });
+
+    var marker = new google.maps.Marker({
+      position: myLatlng,
+      map: map,
+      title: 'Uluru (Ayers Rock)'
+    });
+
+    google.maps.event.addListener(marker, 'click', function() {
+      infowindow.open(map,marker);
     });
 
     $scope.map = map;
-  });
+  };
 
+  $scope.centerOnMe = function() {
+    if(!$scope.map) {
+      return;
+    }
+
+    $scope.loading = $ionicLoading.show({
+      content: 'Getting current location...',
+      showBackdrop: false
+    });
+
+    navigator.geolocation.getCurrentPosition(function(pos) {
+      $scope.map.setCenter(new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude));
+      $scope.loading.hide();
+    }, function(error) {
+      alert('Unable to get location: ' + error.message);
+    });
+  };
+
+  $scope.clickTest = function() {
+      alert('Example of infowindow with ng-click')
+  };
 })
 
 .controller('ProfilCtrl', function($scope, $stateParams) {
