@@ -150,6 +150,8 @@ angular.module('starter.controllers', [])
 })
 
 .controller('ProfilCtrl', function($scope, $stateParams) {
+  console.log('controller called');
+  getUser(); // getUser() va appeler la fonction d'affichage - utilisateurDB.js
 })
 
 .controller('PlaylistsCtrl', function($scope) {
