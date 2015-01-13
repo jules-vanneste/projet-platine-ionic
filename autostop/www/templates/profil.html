@@ -5,29 +5,29 @@
     <ion-content class="has-header">
         <div class="list list-inset">
             <label class="item item-input">
-                <input type="text" placeholder="Nom d'utilisateur">
+                <input id="nomUser" type="text" placeholder="Nom d'utilisateur">
             </label>
         </div>
         <div class="button-bar">
             <a class="button button-green" id="button1" onclick="toggleDiv('button1', 'button2')">Conducteur</a>
-            <a class="button button-stable" id="button2" onclick="toggleDiv('button2', 'button1')">Auto-stoppeur</a>
+            <a class="button button-stable" id="button2" onclick="toggleDiv('button1', 'button2')">Auto-stoppeur</a>
         </div>
         <div id="divConducteur" class="divToggle">
             <div class="list list-inset">
                 <label class="item item-input">
-                    <input type="text" placeholder="Marque">
+                    <input id="marque" type="text" placeholder="Marque">
                 </label>
                 <label class="item item-input">
-                    <input type="text" placeholder="Modèle">
+                    <input id="modele" type="text" placeholder="Modèle">
                 </label>
                 <label class="item item-input">
-                    <input type="text" placeholder="Couleur">
+                    <input id="couleur" type="text" placeholder="Couleur">
                 </label>
             </div>
             <div class="list">
                 <div class="row item item-input">
                     <label class="col col-65">Nombre de places disponibles : </label>
-                    <input class="col col-25" type="number" min="0" max="8" value="0">
+                    <input class="col col-25" id="nbPlaces" type="number" min="0" max="8" value="0">
                 </div>
             </div>
             <div class="list">
@@ -46,7 +46,7 @@
                 </div>
                 <div class="item range range-positive">
                     <i class="icon ion-minus"></i>
-                    <input type="range" name="volume" min="0" max="2000" value="1000" step="100" id="sliderDistance" ondrag="printValueSlider('sliderDistance', 'resDistance', 1, 0, 'm');">
+                    <input type="range" name="volume" min="1000" max="5000" value="3000" step="100" id="sliderDistance" ondrag="printValueSlider('sliderDistance', 'resDistance', 1, 0, 'm');">
                     <i class="icon ion-plus"></i>
                 </div>
             </div>

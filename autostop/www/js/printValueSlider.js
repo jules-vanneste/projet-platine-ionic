@@ -5,3 +5,12 @@ function printValueSlider(idSlider, idRes, multiplicateur, decimal, finChaine){
 
 	res.innerHTML = value.toFixed(decimal) + " " + finChaine;
 }
+
+function changeValueSlider(idSlider, multiplicateur, value) {
+	var slider = document.getElementById(idSlider);
+	slider.value = value * multiplicateur;
+}
+
+function printElement(idElement, value) {
+	var element = document.getElementById(idElement).value = value;
+}
