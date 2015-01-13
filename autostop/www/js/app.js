@@ -4,7 +4,45 @@
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'ion-google-place'])
+angular.module('starter', ['ionic', 'starter.controllers', 'ion-google-place','starter.services', 'auth0', 'angular-storage', 'angular-jwt'])
+
+.config(function($stateProvider, $urlRouterProvider, authProvider, $httpProvider,
+  jwtInterceptorProvider) {
+
+    jwtInterceptorProvider.tokenGetter = function(store, jwtHelper, auth) {
+      var idToken = store.get('token');
+      var refreshToken = store.get('refreshToken');
+      // If no token return null
+      if (!idToken || !refreshToken) {
+        return null;
+      }
+      // If token is expired, get a new one
+      if (jwtHelper.isTokenExpired(idToken)) {
+        return auth.refreshIdToken(refreshToken).then(function(idToken) {
+          store.set('token', idToken);
+          return idToken;
+        });
+      } else {
+        return idToken;
+      }
+    }
+
+    $httpProvider.interceptors.push('jwtInterceptor');
+
+    authProvider.init({
+      domain: 'autostop.auth0.com',
+      clientID: 'yRB8UoefOcpGw5Co9c8sRa8VuLG7Wevw',
+      secret : 'VzhpEdhsIcG3AW0eP4nTQw2giCjEcUf9giWyDDGBuza025ikR3mUlq6O96o6M9Zk',
+      callbackURL: 'https://autostop.auth0.com/login/callback',
+      loginState: 'login'
+    });
+})
+
+
+.run(function(auth) {
+  // Hook auth0-angular to all the events it needs to listen to
+  auth.hookEvents();
+})
 
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
@@ -30,6 +68,25 @@ angular.module('starter', ['ionic', 'starter.controllers', 'ion-google-place'])
       templateUrl: "templates/menu.html",
       controller: 'AppCtrl'
     })
+
+    /* Ajout pour OAuth */
+    .state('login', {
+      url: '/login',
+      templateUrl: 'templates/login.html',
+      controller: 'LoginCtrl',
+    })
+
+    .state('tab', {
+      url: "/tab",
+      abstract: true,
+      templateUrl: "templates/tabs.html",
+      // This state requires users to be logged in
+        // If they're not they'll be redirected to the login state
+      data: {
+        requiresLogin: true
+      }
+    })
+    /* Fin Ajout pour OAuth */
 
     .state('app.accueil', {
       url: "/accueil",
@@ -94,5 +151,3 @@ angular.module('starter', ['ionic', 'starter.controllers', 'ion-google-place'])
   // if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise('/app/accueil');
 });
-
-
