@@ -32,8 +32,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'ion-google-place','s
     authProvider.init({
       domain: 'autostop.auth0.com',
       clientID: 'yRB8UoefOcpGw5Co9c8sRa8VuLG7Wevw',
-      secret : 'VzhpEdhsIcG3AW0eP4nTQw2giCjEcUf9giWyDDGBuza025ikR3mUlq6O96o6M9Zk',
-      callbackURL: 'https://autostop.auth0.com/login/callback',
       loginState: 'login'
     });
 })
@@ -66,7 +64,10 @@ angular.module('starter', ['ionic', 'starter.controllers', 'ion-google-place','s
       url: "/app",
       abstract: true,
       templateUrl: "templates/menu.html",
-      controller: 'AppCtrl'
+      controller: 'AppCtrl',
+      data: {
+        requiresLogin: false
+      }
     })
 
     /* Ajout pour OAuth */
@@ -74,17 +75,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'ion-google-place','s
       url: '/login',
       templateUrl: 'templates/login.html',
       controller: 'LoginCtrl',
-    })
-
-    .state('tab', {
-      url: "/tab",
-      abstract: true,
-      templateUrl: "templates/tabs.html",
-      // This state requires users to be logged in
-        // If they're not they'll be redirected to the login state
-      data: {
-        requiresLogin: true
-      }
     })
     /* Fin Ajout pour OAuth */
 

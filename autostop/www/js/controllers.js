@@ -53,7 +53,7 @@ angular.module('starter.controllers', [])
     store.set('profile', profile);
     store.set('token', token);
     store.set('refreshToken', refreshToken);
-    $state.go('tab.dash');
+    $state.go('app.accueil');
   }, function(error) {
     // Oops something went wrong during login:
     console.log("There was an error logging in", error);
