@@ -1,0 +1,10 @@
+#a0-lock .a0-panel {background-color: #6DB33F !important;}
+#a0-lock.a0-theme-default .a0-icon-budicon-2:before {content: '';}
+#a0-lock.a0-theme-default .a0-panel .a0-icon-container .a0-avatar {background: none; border-radius: 0 !important; background : url('../img/logo.svg'); background-size: 60px auto; background-repeat: no-repeat;display: block;}
+#a0-lock.a0-theme-default .a0-popup .a0-centrix .a0-panel .a0-icon-container .a0-avatar { height: 64px; margin-top: 30px; width: 60px;}
+#a0-lock.a0-theme-default .a0-popup .a0-centrix .a0-panel .a0-icon-container{height: 90px;}
+#a0-lock.a0-theme-default .a0-panel {box-shadow: none;}
+#a0-lock.a0-theme-default .a0-icon-budicon-3:before {content: '';}
+#a0-lock.a0-theme-default .a0-panel {color: white;}
+#a0-lock .a0-signin .a0-popup{background-color: #6DB33F !important;}
+#a0-lock .a0-signin .a0-popup .a0-active {background-color: #6DB33F !important;}
