@@ -34,6 +34,7 @@ angular.module('starter.controllers', [])
 })
 
 .controller('AccueilCtrl', function($scope, $stateParams) {
+  $scope.hideBackButton = true;
 })
 
 .controller('LoginCtrl', function($scope, auth, $state, store) {
