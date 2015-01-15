@@ -89,7 +89,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'ion-google-place','s
     })
 
     .state('app.itineraire', {
-      url: "/itineraire",
+      url: "/itineraire/:destination",
       views: {
         'menuContent' :{
           templateUrl: "templates/itineraire.html",

@@ -60,7 +60,7 @@ angular.module('starter.controllers', [])
   });
 })
 
-.controller('ItineraireCtrl', function($scope, $ionicLoading, $compile) {
+.controller('ItineraireCtrl', function($scope, $ionicLoading, $compile, $stateParams) {
   var latitude, longitude;
   $scope.directionsService;
   $scope.directionsService = new google.maps.DirectionsService();
@@ -104,7 +104,8 @@ angular.module('starter.controllers', [])
 
   $scope.calcRoute = function() {
     var start = "" + latitude + ", " + longitude + "";
-    var end = "50.289264, 2.7678621";
+    console.log($stateParams.destination);
+    var end = $stateParams.destination;
     var request = {
       origin:start,
       destination:end,
