@@ -95,7 +95,7 @@ angular.module('starter.controllers', [])
       latitude = pos.coords.latitude;
       longitude = pos.coords.longitude;
       $scope.map.setCenter(new google.maps.LatLng(latitude, longitude));
-      $scope.loading.hide();
+      $ionicLoading.hide();
       $scope.calcRoute();
     }, function(error) {
       alert('Unable to get location: ' + error.message);
@@ -104,7 +104,6 @@ angular.module('starter.controllers', [])
 
   $scope.calcRoute = function() {
     var start = "" + latitude + ", " + longitude + "";
-    console.log($stateParams.destination);
     var end = $stateParams.destination;
     var request = {
       origin:start,
