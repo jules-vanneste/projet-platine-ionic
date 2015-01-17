@@ -5,7 +5,7 @@
   <ion-content class="has-header">
     <div class="list list-inset">
     <label class="item item-input">
-      <ion-google-place placeholder="Enter an address, Apt# and ZIP" ng-model="location"/>
+      <ion-google-place placeholder="Adresse de destination" ng-model="location"/>
     </label>
     </div>
     <div class="scroll-bar scroll-bar-v">
@@ -13,17 +13,15 @@
       </div>
    </div>
     <div class="list">
-      <a class="item item-icon-left item-icon-right" ng-href="#/app/itineraire/'{{location.formatted_address}}'">
+      <a class="button button-icon-left button-full button-content-left" ng-disabled="!location" ng-href="#/app/itineraire/'{{location.formatted_address}}'">
         <i class="icon ion-model-s"></i>
         Démarrer votre trajet
-        <i class="icon ion-ios7-arrow-forward"></i>
       </a>
-      <a class="item item-icon-left item-icon-right" href="#/app/map">
+      <a class="button button-icon-left button-full button-content-left" ng-disabled="!location" href="#/app/map/'{{location.formatted_address}}'">
         <i class="icon ion-search"></i>
         Trouver un véhicule
-        <i class="icon ion-ios7-arrow-forward"></i>
       </a>
-      <a class="item item-icon-left" href="#">
+      <a class="button button-icon-left button-full button-content-left" href="#">
         <i class="icon ion-archive"></i>
         Enregistrer votre destination
       </a>

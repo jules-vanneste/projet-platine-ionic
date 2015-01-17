@@ -61,7 +61,7 @@ angular.module('starter.controllers', [])
   });
 })
 
-.controller('ItineraireCtrl', function($scope, $ionicLoading, $compile, $stateParams) {
+.controller('ItineraireCtrl', function($scope, $ionicLoading, $compile, $stateParams, $interval) {
   var latitude, longitude;
   $scope.directionsService;
   $scope.directionsService = new google.maps.DirectionsService();
@@ -117,6 +117,13 @@ angular.module('starter.controllers', [])
       }
     });
   };
+
+  $scope.reload = function() {
+    $scope.getCurrentPosition();
+    $scope.calcRoute();
+  };
+
+  $interval(function(){ $scope.reload(); }, 100000);
 })
 
 .controller('MapCtrl', function($scope, $ionicLoading, $compile) {
