@@ -34,7 +34,11 @@ angular.module('starter.controllers', [])
 })
 
 .controller('AccueilCtrl', function($scope, $stateParams) {
+<<<<<<< HEAD
   ouvertureBDD();
+=======
+  $scope.hideBackButton = true;
+>>>>>>> 491db8e2f1a340e4ab2be464ddaaec68d3819bf4
 })
 
 .controller('LoginCtrl', function($scope, auth, $state, store) {
@@ -54,14 +58,14 @@ angular.module('starter.controllers', [])
     store.set('profile', profile);
     store.set('token', token);
     store.set('refreshToken', refreshToken);
-    $state.go('tab.dash');
+    $state.go('app.accueil');
   }, function(error) {
     // Oops something went wrong during login:
     console.log("There was an error logging in", error);
   });
 })
 
-.controller('ItineraireCtrl', function($scope, $ionicLoading, $compile) {
+.controller('ItineraireCtrl', function($scope, $ionicLoading, $compile, $stateParams, $interval) {
   var latitude, longitude;
   $scope.directionsService;
   $scope.directionsService = new google.maps.DirectionsService();
@@ -96,7 +100,7 @@ angular.module('starter.controllers', [])
       latitude = pos.coords.latitude;
       longitude = pos.coords.longitude;
       $scope.map.setCenter(new google.maps.LatLng(latitude, longitude));
-      $scope.loading.hide();
+      $ionicLoading.hide();
       $scope.calcRoute();
     }, function(error) {
       alert('Unable to get location: ' + error.message);
@@ -105,7 +109,7 @@ angular.module('starter.controllers', [])
 
   $scope.calcRoute = function() {
     var start = "" + latitude + ", " + longitude + "";
-    var end = "50.289264, 2.7678621";
+    var end = $stateParams.destination;
     var request = {
       origin:start,
       destination:end,
@@ -117,6 +121,13 @@ angular.module('starter.controllers', [])
       }
     });
   };
+
+  $scope.reload = function() {
+    $scope.getCurrentPosition();
+    $scope.calcRoute();
+  };
+
+  $interval(function(){ $scope.reload(); }, 100000);
 })
 
 .controller('MapCtrl', function($scope, $ionicLoading, $compile) {
