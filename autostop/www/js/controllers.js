@@ -34,6 +34,7 @@ angular.module('starter.controllers', [])
 })
 
 .controller('AccueilCtrl', function($scope, $stateParams) {
+  ouvertureBDD();
 })
 
 .controller('LoginCtrl', function($scope, auth, $state, store) {
@@ -174,7 +175,7 @@ angular.module('starter.controllers', [])
 })
 
 .controller('ProfilCtrl', function($scope, $stateParams) {
-  console.log('controller called');
+  ouvertureBDD();
   getUser(); // getUser() va appeler la fonction d'affichage - utilisateurDB.js
 })
 
@@ -190,4 +191,38 @@ angular.module('starter.controllers', [])
 })
 
 .controller('PlaylistCtrl', function($scope, $stateParams) {
+})
+
+.controller('PopupCtrl', function($scope, $ionicPopup, $timeout) {
+   // A confirm dialog
+   $scope.showConfirm = function(title, question) {
+     var confirmPopup = $ionicPopup.confirm({
+       title: title,
+       template: question
+     });
+     /*
+     confirmPopup.then(function(res) {
+       if(res) {
+         console.log('You are sure');
+       } else {
+         console.log('You are not sure');
+       }
+     });
+    */
+   };
+
+   // An alert dialog
+   $scope.showAlert = function(title, msg) {
+     var alertPopup = $ionicPopup.alert({
+       title: title,
+       template: msg
+     });
+     /*
+     alertPopup.then(function(res) {
+       console.log('Thank you for not eating my delicious ice cream cone');
+     });
+     */
+   };
+
+
 });
