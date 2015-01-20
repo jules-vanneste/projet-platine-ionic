@@ -4,13 +4,7 @@
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'ion-google-place','starter.services', 'auth0', 'angular-storage', 'angular-jwt', 'elasticsearch'])
-
-.service('client', function (esFactory) {
-  return esFactory({
-    host: 'vps132885.ovh.net:9200'
-  });
-})
+angular.module('starter', ['ionic', 'starter.controllers', 'ion-google-place','starter.services', 'auth0', 'angular-storage', 'angular-jwt'])
 
 .config(function($stateProvider, $urlRouterProvider, authProvider, $httpProvider,
   jwtInterceptorProvider) {
