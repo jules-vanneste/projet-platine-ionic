@@ -38,7 +38,7 @@ angular.module('starter.controllers', [])
   $scope.hideBackButton = true;
 })
 
-.controller('LoginCtrl', function($scope, auth, $state, store) {
+.controller('LoginCtrl', function($scope, auth, $state, store, client) {
   auth.signin({
     authParams: {
       // This asks for the refresh token
@@ -56,6 +56,18 @@ angular.module('starter.controllers', [])
     store.set('token', token);
     store.set('refreshToken', refreshToken);
     $state.go('app.accueil');
+    client.create({
+      index: 'users',
+      type: 'user',
+      id: profile.user_id,
+      body: {
+        nom: profile.name,
+        email: profile.email
+      }
+    }, function (error, response) {
+      console.log("There was an error in elasticsearch request error : ", error);
+      console.log("There was an error in elasticsearch request response : ", response);
+    });
   }, function(error) {
     // Oops something went wrong during login:
     console.log("There was an error logging in", error);
