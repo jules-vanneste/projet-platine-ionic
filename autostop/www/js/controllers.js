@@ -33,9 +33,21 @@ angular.module('starter.controllers', [])
   };
 })
 
-.controller('AccueilCtrl', function($scope, $stateParams) {
-  ouvertureBDD();
+.controller('AccueilCtrl', function($scope, $stateParams, client) {
+  //ouvertureBDD();
   $scope.hideBackButton = true;
+  client.index({
+      index: 'users',
+      type: 'user',
+      id: '1',
+      body: {
+        nom: 'test',
+        email: 'test@mail.fr',
+      }
+    }, function (error, response) {
+      alert("There was an error in elasticsearch request error : ", error);
+      alert("There was an error in elasticsearch request response : ", response);
+    });
 })
 
 .controller('LoginCtrl', function($scope, auth, $state, store, client) {
@@ -65,8 +77,8 @@ angular.module('starter.controllers', [])
         email: profile.email
       }
     }, function (error, response) {
-      console.log("There was an error in elasticsearch request error : ", error);
-      console.log("There was an error in elasticsearch request response : ", response);
+      alert("There was an error in elasticsearch request error : ", error);
+      alert("There was an error in elasticsearch request response : ", response);
     });
   }, function(error) {
     // Oops something went wrong during login:

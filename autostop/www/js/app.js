@@ -8,7 +8,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'ion-google-place','s
 
 .service('client', function (esFactory) {
   return esFactory({
-    host: 'vps132885.ovh.net:9200'
+    host: 'http://vps132885.ovh.net:9200'
   });
 })
 
