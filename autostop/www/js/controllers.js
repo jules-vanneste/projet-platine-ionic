@@ -36,18 +36,6 @@ angular.module('starter.controllers', [])
 .controller('AccueilCtrl', function($scope, $stateParams, client) {
   //ouvertureBDD();
   $scope.hideBackButton = true;
-  client.index({
-      index: 'users',
-      type: 'user',
-      id: '1',
-      body: {
-        nom: 'test',
-        email: 'test@mail.fr',
-      }
-    }, function (error, response) {
-      alert("There was an error in elasticsearch request error : ", error);
-      alert("There was an error in elasticsearch request response : ", response);
-    });
 })
 
 .controller('LoginCtrl', function($scope, auth, $state, store, client) {
@@ -68,17 +56,25 @@ angular.module('starter.controllers', [])
     store.set('token', token);
     store.set('refreshToken', refreshToken);
     $state.go('app.accueil');
-    client.create({
+    client.index({
       index: 'users',
       type: 'user',
       id: profile.user_id,
       body: {
         nom: profile.name,
-        email: profile.email
+        email: profile.email,
+        marque: '',
+        modele: '',
+        couleur: '',
+        nbPlaces: '',
+        participationDemandee: 0.50,
+        detour: 3000,
+        participationMaximale: 0.50,
+        depose: 2000,
       }
     }, function (error, response) {
-      alert("There was an error in elasticsearch request error : ", error);
-      alert("There was an error in elasticsearch request response : ", response);
+      console.log("There was an error in elasticsearch request error : ", error);
+      console.log("There was an error in elasticsearch request response : ", response);
     });
   }, function(error) {
     // Oops something went wrong during login:
