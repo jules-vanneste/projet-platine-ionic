@@ -62,7 +62,7 @@ angular.module('starter.controllers', [])
       id: profile.user_id,
       body: {
         nom: profile.name,
-        email: profile.email,
+        mail: profile.email,
         marque: '',
         modele: '',
         couleur: '',
@@ -71,6 +71,9 @@ angular.module('starter.controllers', [])
         detour: 3000,
         participationMaximale: 0.50,
         depose: 2000,
+        actif: false,
+        lat: 0,
+        lon: 0
       }
     }, function (error, response) {
       console.log("There was an error in elasticsearch request error : ", error);
