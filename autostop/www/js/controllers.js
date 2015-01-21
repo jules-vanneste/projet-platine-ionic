@@ -55,7 +55,9 @@ angular.module('starter.controllers', [])
     store.set('profile', profile);
     store.set('token', token);
     store.set('refreshToken', refreshToken);
+
     $state.go('app.accueil');
+
     client.index({
       index: 'users',
       type: 'user',
@@ -66,7 +68,7 @@ angular.module('starter.controllers', [])
         marque: '',
         modele: '',
         couleur: '',
-        nbPlaces: '',
+        nbPlaces: 0,
         participationDemandee: 0.50,
         detour: 3000,
         participationMaximale: 0.50,
@@ -205,9 +207,49 @@ angular.module('starter.controllers', [])
   };
 })
 
-.controller('ProfilCtrl', function($scope, $stateParams) {
+.controller('ProfilCtrl', function($scope, $stateParams, store, client) {
+  /*
   ouvertureBDD();
   getUser(); // getUser() va appeler la fonction d'affichage - utilisateurDB.js
+  */
+  $scope.profile = store.get('profile');
+  client.get({
+    index: 'users',
+    type: 'user',
+    id: 'google-oauth2|101046949406679467409', //profile.user_id
+  }, function (error, response) {
+    console.log("There was an error in elasticsearch request error : ", error);
+    console.log("There was an error in elasticsearch request response : ", response);
+
+    $scope.user=response._source;
+  });
+  
+  $scope.update = function(user, profile){
+    alert(JSON.stringify(user));
+    client.index({
+      index: 'users',
+      type: 'user',
+      id: 'google-oauth2|101046949406679467409', //profile.user_id
+      body: {
+        nom: user.nom,
+        mail: profile.email,
+        marque: user.marque,
+        modele: user.modele,
+        couleur: user.couleur,
+        nbPlaces: user.nbPlaces,
+        participationDemandee: user.participationDemandee,
+        detour: user.detour,
+        participationMaximale: user.participationMaximale,
+        depose: user.depose,
+        actif: false,
+        lat: 0,
+        lon: 0
+      }
+    }, function (error, response) {
+      console.log("There was an error in elasticsearch request error : ", error);
+      console.log("There was an error in elasticsearch request response : ", response);
+    });
+  }
 })
 
 .controller('PlaylistsCtrl', function($scope) {
