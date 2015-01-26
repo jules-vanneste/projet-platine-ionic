@@ -33,11 +33,11 @@
             <div class="list">
                 <div class="row item item-input">
                     <label class="col col-75">Participation demandée :</label>
-                    <label id="resParticipation" class="col col-25 align-right">{{ user.participationDemandee }} €/km</label>
+                    <label id="resParticipation" class="col col-25 align-right">{{ user.participationDemandee / 100 }} €/km</label>
                 </div>
                 <div class="item range range-positive">
                     <i class="icon ion-minus"></i>
-                    <input type="range" name="volume" min="0" max="100" ng-model="user.participationDemandee*100" id="sliderParticipation" ondrag="printValueSlider('sliderParticipation', 'resParticipation', 0.01, 2, '€/km');">
+                    <input type="range" name="volume" min="0" max="100" ng-model="user.participationDemandee" id="sliderParticipation" ondrag="printValueSlider('sliderParticipation', 'resParticipation', 0.01, 2, '€/km');">
                     <i class="icon ion-plus"></i>
                 </div>
                 <div class="row item item-input">
@@ -55,11 +55,11 @@
             <div class="list">
                 <div class="row item item-input">
                     <label class="col col-75">Participation maximale :</label>
-                    <label id="resParticipationMax" class="col col-25 align-right">{{ user.participationMaximale }} €/km</label>
+                    <label id="resParticipationMax" class="col col-25 align-right">{{ user.participationMaximale / 100 }} €/km</label>
                 </div>
                 <div class="item range range-positive">
                     <i class="icon ion-minus"></i>
-                    <input type="range" name="volume" min="0" max="100" ng-model="user.participationMaximale*100" id="sliderParticipationMax" ondrag="printValueSlider('sliderParticipationMax', 'resParticipationMax', 0.01, 2, '€/km');">
+                    <input type="range" name="volume" min="0" max="100" ng-model="user.participationMaximale" id="sliderParticipationMax" ondrag="printValueSlider('sliderParticipationMax', 'resParticipationMax', 0.01, 2, '€/km');">
                     <i class="icon ion-plus"></i>
                 </div>
                 <div class="row item item-input">

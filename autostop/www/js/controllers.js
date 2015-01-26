@@ -69,10 +69,10 @@ angular.module('starter.controllers', [])
         modele: '',
         couleur: '',
         nbPlaces: 0,
-        participationDemandee: 0.50,
-        detour: 3000,
-        participationMaximale: 0.50,
-        depose: 2000,
+        participationDemandee: '50',
+        detour: '3000',
+        participationMaximale: '50',
+        depose: '2000',
         actif: false,
         lat: 0,
         lon: 0
@@ -87,14 +87,32 @@ angular.module('starter.controllers', [])
   });
 })
 
-.controller('ItineraireCtrl', function($scope, $ionicLoading, $compile, $stateParams, $interval) {
-  var latitude, longitude;
+.controller('ItineraireCtrl', function($scope, $ionicLoading, $compile, $stateParams, $interval, store, client) {
+  var latitude, longitude, profile;
   $scope.directionsService;
   $scope.directionsService = new google.maps.DirectionsService();
 
+  //profile = store.get('profile');
+
+  $scope.update = function(){
+    client.update({
+      index: 'users',
+      type: 'user',
+      id: 'google-oauth2|101046949406679467409', //profile.user_id
+      body: {
+        actif: true,
+        lat: latitude,
+        lon: longitude
+      }
+    }, function (error, response) {
+      console.log("There was an error in elasticsearch request error : ", error);
+      console.log("There was an error in elasticsearch request response : ", response);
+    });
+  };
+
   $scope.init = function() {
     $scope.directionsDisplay = new google.maps.DirectionsRenderer();
-    var myLatlng = new google.maps.LatLng(43.07493,-89.381388);
+    var myLatlng = new google.maps.LatLng(48.858859,2.3470599);
 
     var mapOptions = {
       center: myLatlng,
@@ -124,6 +142,7 @@ angular.module('starter.controllers', [])
       $scope.map.setCenter(new google.maps.LatLng(latitude, longitude));
       $ionicLoading.hide();
       $scope.calcRoute();
+      $scope.update();
     }, function(error) {
       alert('Unable to get location: ' + error.message);
     });
@@ -232,7 +251,7 @@ angular.module('starter.controllers', [])
       id: 'google-oauth2|101046949406679467409', //profile.user_id
       body: {
         nom: user.nom,
-        mail: profile.email,
+        mail: "jules.vanneste@gmail.com",//profile.email,
         marque: user.marque,
         modele: user.modele,
         couleur: user.couleur,
