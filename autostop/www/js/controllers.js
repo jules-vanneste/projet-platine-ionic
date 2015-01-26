@@ -33,12 +33,12 @@ angular.module('starter.controllers', [])
   };
 })
 
-.controller('AccueilCtrl', function($scope, $stateParams) {
-  ouvertureBDD();
+.controller('AccueilCtrl', function($scope, $stateParams, client) {
+  //ouvertureBDD();
   $scope.hideBackButton = true;
 })
 
-.controller('LoginCtrl', function($scope, auth, $state, store) {
+.controller('LoginCtrl', function($scope, auth, $state, store, client) {
   auth.signin({
     authParams: {
       // This asks for the refresh token
@@ -55,21 +55,64 @@ angular.module('starter.controllers', [])
     store.set('profile', profile);
     store.set('token', token);
     store.set('refreshToken', refreshToken);
+
     $state.go('app.accueil');
+
+    client.index({
+      index: 'users',
+      type: 'user',
+      id: profile.user_id,
+      body: {
+        nom: profile.name,
+        mail: profile.email,
+        marque: '',
+        modele: '',
+        couleur: '',
+        nbPlaces: 0,
+        participationDemandee: '50',
+        detour: '3000',
+        participationMaximale: '50',
+        depose: '2000',
+        actif: false,
+        lat: 0,
+        lon: 0
+      }
+    }, function (error, response) {
+      console.log("There was an error in elasticsearch request error : ", error);
+      console.log("There was an error in elasticsearch request response : ", response);
+    });
   }, function(error) {
     // Oops something went wrong during login:
     console.log("There was an error logging in", error);
   });
 })
 
-.controller('ItineraireCtrl', function($scope, $ionicLoading, $compile, $stateParams, $interval) {
-  var latitude, longitude;
+.controller('ItineraireCtrl', function($scope, $ionicLoading, $compile, $stateParams, $interval, store, client) {
+  var latitude, longitude, profile;
   $scope.directionsService;
   $scope.directionsService = new google.maps.DirectionsService();
 
+  //profile = store.get('profile');
+
+  $scope.update = function(){
+    client.update({
+      index: 'users',
+      type: 'user',
+      id: 'google-oauth2|101046949406679467409', //profile.user_id
+      body: {
+        actif: true,
+        lat: latitude,
+        lon: longitude
+      }
+    }, function (error, response) {
+      console.log("There was an error in elasticsearch request error : ", error);
+      console.log("There was an error in elasticsearch request response : ", response);
+    });
+  };
+
   $scope.init = function() {
     $scope.directionsDisplay = new google.maps.DirectionsRenderer();
-    var myLatlng = new google.maps.LatLng(43.07493,-89.381388);
+    var myLatlng = new google.maps.LatLng(48.858859,2.3470599);
 
     var mapOptions = {
       center: myLatlng,
@@ -99,6 +142,7 @@ angular.module('starter.controllers', [])
       $scope.map.setCenter(new google.maps.LatLng(latitude, longitude));
       $ionicLoading.hide();
       $scope.calcRoute();
+      $scope.update();
     }, function(error) {
       alert('Unable to get location: ' + error.message);
     });
@@ -182,10 +226,49 @@ angular.module('starter.controllers', [])
   };
 })
 
-.controller('ProfilCtrl', function($scope, $stateParams) {
+.controller('ProfilCtrl', function($scope, $stateParams, store, client) {
   ouvertureBDD();
   getUser(); // getUser() va appeler la fonction d'affichage - utilisateurDB.js
   jouerSon("sons/orage.mp3");
+
+  $scope.profile = store.get('profile');
+  client.get({
+    index: 'users',
+    type: 'user',
+    id: 'google-oauth2|101046949406679467409', //profile.user_id
+  }, function (error, response) {
+    console.log("There was an error in elasticsearch request error : ", error);
+    console.log("There was an error in elasticsearch request response : ", response);
+
+    $scope.user=response._source;
+  });
+  
+  $scope.update = function(user, profile){
+    alert(JSON.stringify(user));
+    client.index({
+      index: 'users',
+      type: 'user',
+      id: 'google-oauth2|101046949406679467409', //profile.user_id
+      body: {
+        nom: user.nom,
+        mail: "jules.vanneste@gmail.com",//profile.email,
+        marque: user.marque,
+        modele: user.modele,
+        couleur: user.couleur,
+        nbPlaces: user.nbPlaces,
+        participationDemandee: user.participationDemandee,
+        detour: user.detour,
+        participationMaximale: user.participationMaximale,
+        depose: user.depose,
+        actif: false,
+        lat: 0,
+        lon: 0
+      }
+    }, function (error, response) {
+      console.log("There was an error in elasticsearch request error : ", error);
+      console.log("There was an error in elasticsearch request response : ", response);
+    });
+  }
 })
 
 .controller('PlaylistsCtrl', function($scope) {
