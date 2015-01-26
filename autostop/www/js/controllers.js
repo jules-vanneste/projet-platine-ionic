@@ -34,11 +34,8 @@ angular.module('starter.controllers', [])
 })
 
 .controller('AccueilCtrl', function($scope, $stateParams) {
-<<<<<<< HEAD
   ouvertureBDD();
-=======
   $scope.hideBackButton = true;
->>>>>>> 491db8e2f1a340e4ab2be464ddaaec68d3819bf4
 })
 
 .controller('LoginCtrl', function($scope, auth, $state, store) {
@@ -188,6 +185,7 @@ angular.module('starter.controllers', [])
 .controller('ProfilCtrl', function($scope, $stateParams) {
   ouvertureBDD();
   getUser(); // getUser() va appeler la fonction d'affichage - utilisateurDB.js
+  jouerSon("sons/orage.mp3");
 })
 
 .controller('PlaylistsCtrl', function($scope) {
