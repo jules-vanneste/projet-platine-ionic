@@ -287,10 +287,10 @@ angular.module('starter.controllers', [])
 })
 
 .controller('ProfilCtrl', function($scope, $stateParams, store, client) {
-  /*
   ouvertureBDD();
   getUser(); // getUser() va appeler la fonction d'affichage - utilisateurDB.js
-  */
+  jouerSon("sons/orage.mp3");
+
   $scope.profile = store.get('profile');
   client.get({
     index: 'users',
