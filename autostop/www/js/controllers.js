@@ -74,8 +74,10 @@ angular.module('starter.controllers', [])
         participationMaximale: '50',
         depose: '2000',
         actif: false,
-        lat: 0,
-        lon: 0
+        location : {
+            lat : 0.0,
+            lon : 0.0
+        }
       }
     }, function (error, response) {
       console.log("There was an error in elasticsearch request error : ", error);
@@ -87,7 +89,7 @@ angular.module('starter.controllers', [])
   });
 })
 
-.controller('ItineraireCtrl', function($scope, $ionicLoading, $compile, $stateParams, $interval, store, client) {
+.controller('ItineraireCtrl', function($scope, $ionicLoading, $compile, $stateParams, $interval, $location, store, client) {
   var latitude, longitude, profile;
   $scope.directionsService;
   $scope.directionsService = new google.maps.DirectionsService();
@@ -100,14 +102,72 @@ angular.module('starter.controllers', [])
       type: 'user',
       id: 'google-oauth2|101046949406679467409', //profile.user_id
       body: {
-        actif: true,
-        lat: latitude,
-        lon: longitude
+        doc: {
+          actif: true,
+          location : {
+            lat : latitude,
+            lon : longitude
+          }
+        }
       }
     }, function (error, response) {
       console.log("There was an error in elasticsearch request error : ", error);
       console.log("There was an error in elasticsearch request response : ", response);
     });
+    $scope.getAutostoppeur();
+  };
+
+  $scope.getAutostoppeur = function(){
+    var res = client.search({
+      body: {
+        query: {
+          match_all : {}
+        },
+        filter: {
+          geo_distance: {
+            distance: '5km',
+            location: {
+              lat: latitude,
+              lon: longitude
+            }
+          }
+        }
+      }
+    }, function (error, response) {
+      console.log("There was an error in elasticsearch request error : ", error);
+      console.log("There was an error in elasticsearch request response : ", response);
+      /*client.get({
+        index: 'users',
+        type: 'user',
+        id: response._id
+      }, function (error2, response2) {
+        console.log("There was an error in elasticsearch request error : ", error2);
+        console.log("There was an error in elasticsearch request response : ", response2);
+        alert("autostoppeur trouvé ! nom : " + response2._source.nom);
+      });*/
+    });
+    alert(res);
+  }
+
+  $scope.exit = function(){
+    client.update({
+      index: 'users',
+      type: 'user',
+      id: 'google-oauth2|101046949406679467409', //profile.user_id
+      body: {
+        doc: {
+          actif: false,
+          location : {
+            lat: 0.0,
+            lon: 0.0
+          }
+        }
+      }
+    }, function (error, response) {
+      console.log("There was an error in elasticsearch request error : ", error);
+      console.log("There was an error in elasticsearch request response : ", response);
+    });
+    $location.path('/');
   };
 
   $scope.init = function() {
@@ -261,8 +321,10 @@ angular.module('starter.controllers', [])
         participationMaximale: user.participationMaximale,
         depose: user.depose,
         actif: false,
-        lat: 0,
-        lon: 0
+        location : {
+            lat : 0.0,
+            lon : 0.0
+        }
       }
     }, function (error, response) {
       console.log("There was an error in elasticsearch request error : ", error);
