@@ -34,8 +34,27 @@ angular.module('starter.controllers', [])
 })
 
 .controller('AccueilCtrl', function($scope, $stateParams, client) {
-  //ouvertureBDD();
+  ouvertureBDD();
   $scope.hideBackButton = true;
+
+  $scope.saveAdresse = function(adresse) {
+    console.log('saveAdresse called');
+    addData(adresse);
+    /*
+    var listeAdresses = [];
+    var promiseAdresses = getAdresses();
+    $.when(promiseAdresses).done(function(data) {
+      listeAdresses = data;
+    }).fail(function(data) {
+
+    });
+  */
+  }
+})
+
+.controller('FavorisCtrl', function($scope, $stateParams) {
+  getAdresses();
+  //deleteFirstOption("favSelect");
 })
 
 .controller('LoginCtrl', function($scope, auth, $state, store, client) {

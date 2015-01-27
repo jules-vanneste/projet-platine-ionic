@@ -21,7 +21,7 @@
         <i class="icon ion-search"></i>
         Trouver un véhicule
       </a>
-      <a class="button button-icon-left button-full button-content-left" ng-click="saveLocation({{location}});">
+      <a class="button button-icon-left button-full button-content-left" ng-disabled="!location" ng-click="saveAdresse(location.formatted_address)">
         <i class="icon ion-archive"></i>
         Enregistrer votre destination
       </a>

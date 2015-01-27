@@ -125,6 +125,16 @@ angular.module('starter', ['ionic', 'starter.controllers', 'ion-google-place','s
       }
     })
 
+    .state('app.favoris', {
+      url: "/favoris",
+      views: {
+        'menuContent' :{
+          templateUrl: "templates/favoris.html",
+          controller: 'FavorisCtrl'
+        }
+      }
+    })
+
     .state('app.playlists', {
       url: "/playlists",
       views: {
