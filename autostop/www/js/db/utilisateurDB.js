@@ -17,7 +17,7 @@ function ouvertureBDD() {
 		var db = event.target.result;
 		var objectStore = db.createObjectStore("adresses", { autoIncrement: true});
 		//création de la table 'user_table' et ajout des champs
-		//objectStore.createIndex("adresse", "adresse", { unique: true });
+		//objectStore.createIndex("donne", "donnee", { unique: true });
 	};
 }
 
