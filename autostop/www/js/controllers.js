@@ -33,9 +33,20 @@ angular.module('starter.controllers', [])
   };
 })
 
-.controller('AccueilCtrl', function($scope, $stateParams, client) {
+.controller('AccueilCtrl', function($scope, $stateParams, client, store) {
   //ouvertureBDD();
   $scope.hideBackButton = true;
+
+  var profile = store.get('profile');
+  client.get({
+    index: 'users',
+    type: 'user',
+    id: /*profile.user_id,*/ 'google-oauth2|101046949406679467409',
+  }, function (error, response) {
+    console.log("There was an error in elasticsearch request error : ", error);
+    console.log("There was an error in elasticsearch request response : ", response);
+    store.set('user',response._source);
+  });
 })
 
 .controller('LoginCtrl', function($scope, auth, $state, store, client) {
@@ -77,6 +88,10 @@ angular.module('starter.controllers', [])
         location : {
             lat : 0.0,
             lon : 0.0
+        },
+        destination : {
+            lat : 0.0,
+            lon : 0.0
         }
       }
     }, function (error, response) {
@@ -90,11 +105,72 @@ angular.module('starter.controllers', [])
 })
 
 .controller('ItineraireCtrl', function($scope, $ionicLoading, $compile, $stateParams, $interval, $location, store, client) {
-  var latitude, longitude, profile;
+  var latitude, longitude, profile, user;
   $scope.directionsService;
   $scope.directionsService = new google.maps.DirectionsService();
 
-  //profile = store.get('profile');
+  profile = store.get('profile');
+  user = store.get('user');
+
+  $scope.init = function() {
+    $scope.directionsDisplay = new google.maps.DirectionsRenderer();
+    var myLatlng = new google.maps.LatLng(48.858859,2.3470599);
+
+    var mapOptions = {
+      center: myLatlng,
+      zoom: 16,
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+    var map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+    $scope.map = map;
+    $scope.directionsDisplay.setMap(map);
+    $scope.setDestination();
+    $scope.getCurrentPosition();
+  };
+
+  $scope.getCurrentPosition = function() {
+    if(!$scope.map) {
+      return;
+    }
+
+    $scope.loading = $ionicLoading.show({
+      content: 'Getting current location...',
+      showBackdrop: false
+    });
+
+    navigator.geolocation.getCurrentPosition(function(pos) {
+      latitude = pos.coords.latitude;
+      longitude = pos.coords.longitude;
+      $scope.map.setCenter(new google.maps.LatLng(latitude, longitude));
+      $ionicLoading.hide();
+      $scope.calcRoute();
+      $scope.update();
+    }, function(error) {
+      alert('Unable to get location: ' + error.message);
+    });
+  };
+
+  $scope.calcRoute = function() {
+    var start = "" + latitude + ", " + longitude + "";
+    var end = "" + $stateParams.destination + "";
+    alert(end + '-' + start);
+    var request = {
+      origin:start,
+      destination:end,
+      travelMode: google.maps.TravelMode.DRIVING
+    };
+    $scope.directionsService.route(request, function(result, status) {
+      if (status == google.maps.DirectionsStatus.OK) {
+        $scope.directionsDisplay.setDirections(result);
+      }
+    });
+  };
+
+  $scope.reload = function() {
+    $scope.getCurrentPosition();
+    $scope.calcRoute();
+  };
 
   $scope.update = function(){
     client.update({
@@ -118,6 +194,27 @@ angular.module('starter.controllers', [])
     $scope.getAutostoppeur();
   };
 
+  $scope.setDestination = function(){
+    var destination = $stateParams.destination;
+    client.update({
+      index: 'users',
+      type: 'user',
+      id: 'google-oauth2|101046949406679467409', //profile.user_id
+      body: {
+        doc: {
+          destination : {
+            lat : latitude,
+            lon : longitude
+          }
+        }
+      }
+    }, function (error, response) {
+      console.log("There was an error in elasticsearch request error : ", error);
+      console.log("There was an error in elasticsearch request response : ", response);
+      alert(JSON.stringify(response));
+    });
+  }
+
   $scope.getAutostoppeur = function(){
     var res = client.search({
       body: {
@@ -128,7 +225,7 @@ angular.module('starter.controllers', [])
           and:[
             {
               geo_distance: {
-                distance: '2000m',
+                distance: user.detour + 'm',
                 location: {
                   lat: latitude,
                   lon: longitude
@@ -177,64 +274,6 @@ angular.module('starter.controllers', [])
       console.log("There was an error in elasticsearch request response : ", response);
     });
     $location.path('/');
-  };
-
-  $scope.init = function() {
-    $scope.directionsDisplay = new google.maps.DirectionsRenderer();
-    var myLatlng = new google.maps.LatLng(48.858859,2.3470599);
-
-    var mapOptions = {
-      center: myLatlng,
-      zoom: 16,
-      mapTypeId: google.maps.MapTypeId.ROADMAP
-    };
-    var map = new google.maps.Map(document.getElementById("map"), mapOptions);
-
-    $scope.map = map;
-    $scope.directionsDisplay.setMap(map);
-    $scope.getCurrentPosition();
-  };
-
-  $scope.getCurrentPosition = function() {
-    if(!$scope.map) {
-      return;
-    }
-
-    $scope.loading = $ionicLoading.show({
-      content: 'Getting current location...',
-      showBackdrop: false
-    });
-
-    navigator.geolocation.getCurrentPosition(function(pos) {
-      latitude = pos.coords.latitude;
-      longitude = pos.coords.longitude;
-      $scope.map.setCenter(new google.maps.LatLng(latitude, longitude));
-      $ionicLoading.hide();
-      $scope.calcRoute();
-      $scope.update();
-    }, function(error) {
-      alert('Unable to get location: ' + error.message);
-    });
-  };
-
-  $scope.calcRoute = function() {
-    var start = "" + latitude + ", " + longitude + "";
-    var end = $stateParams.destination;
-    var request = {
-      origin:start,
-      destination:end,
-      travelMode: google.maps.TravelMode.DRIVING
-    };
-    $scope.directionsService.route(request, function(result, status) {
-      if (status == google.maps.DirectionsStatus.OK) {
-        $scope.directionsDisplay.setDirections(result);
-      }
-    });
-  };
-
-  $scope.reload = function() {
-    $scope.getCurrentPosition();
-    $scope.calcRoute();
   };
 
   $interval(function(){ $scope.reload(); }, 100000);
@@ -298,30 +337,20 @@ angular.module('starter.controllers', [])
 .controller('ProfilCtrl', function($scope, $stateParams, store, client) {
   //ouvertureBDD();
   //getUser(); // getUser() va appeler la fonction d'affichage - utilisateurDB.js
-  jouerSon("sons/orage.mp3");
+  //jouerSon("sons/orage.mp3");
 
-  var profile = store.get('profile');
-  alert(JSON.stringify(profile));
-  client.get({
-    index: 'users',
-    type: 'user',
-    id: /*'google-oauth2|101046949406679467409',*/ profile.user_id,
-  }, function (error, response) {
-    console.log("There was an error in elasticsearch request error : ", error);
-    console.log("There was an error in elasticsearch request response : ", response);
-    alert(JSON.stringify(response));
-    $scope.user=response._source;
-  });
-  
+  $scope.user = store.get('user');
+  $scope.profile = store.get('profile');
+
   $scope.update = function(user, profile){
     alert(JSON.stringify(user));
     client.index({
       index: 'users',
       type: 'user',
-      id: 'google-oauth2|101046949406679467409', //profile.user_id
+      id: /*profile.user_id*/ 'google-oauth2|101046949406679467409',
       body: {
         nom: user.nom,
-        mail: "jules.vanneste@gmail.com",//profile.email,
+        mail: /*profile.email,*/ "jules.vanneste@gmail.com",
         marque: user.marque,
         modele: user.modele,
         couleur: user.couleur,
@@ -334,11 +363,16 @@ angular.module('starter.controllers', [])
         location : {
             lat : 0.0,
             lon : 0.0
+        },
+        destination : {
+            lat : 0.0,
+            lon : 0.0
         }
       }
     }, function (error, response) {
       console.log("There was an error in elasticsearch request error : ", error);
       console.log("There was an error in elasticsearch request response : ", response);
+      store.set('user',response._source);
     });
   }
 })
