@@ -1,0 +1,69 @@
+{"query":
+	{"match_all":{}},
+	"filter": {
+        	"geo_distance": {
+	            	"distance": "5km",
+	    		"users.user": {
+	        		"lat": 50.6096961,
+	        		"lon": 3.1368647999999997
+	    		}
+          	}
+        }
+}
+
+{"query":
+{"match_all":{}}
+,"filter": {
+"geo_distance": {
+"distance": "5km",
+"pin.location": {
+"lat" : "50",
+"lon": "3"
+}
+}
+}
+}
+
+{
+	"index": "users",
+	"type": "user",
+	"id": "1"
+}
+
+{
+	"query" : {
+	    "match_all" : {}
+	},
+	"filter" : {
+	    "geo_distance" : {
+	        "distance" : "200km",
+	        "pin.location" : {
+	            "lat" : 40,
+	            "lon" : -70
+	        }
+	    }
+	}
+}
+
+curl -XPUT 'http://vps132885.ovh.net:9200/users/_mapping/user' -d '{"user":{"properties" :{"location":{"type":"geo_point"}}}}'
+curl -XPUT 'http://vps132885.ovh.net:9200/users/_mapping/user' -d '{"user":{"properties" :{"destination":{"type":"geo_point"}}}}'
+
+
+{
+	"query" : {
+	    "match_all" : {}
+	},
+	"filter" : {
+	    "geo_distance" : {
+	        "distance" : "200km",
+	        "pin.location" : {
+	            "lat" : 40,
+	            "lon" : -70
+	        }
+	    }
+	}
+}
+
+curl -XPUT 'http://vps132885.ovh.net:9200/users/'
+
+curl -XPUT 'http://vps132885.ovh.net:9200/users/user/1' -d '{"nom": "Usain Bolt","mail": "usain.bolt@gmail.com","marque": "","modele": "","couleur": "","nbPlaces": 0,"participationDemandee": 50,"detour": 3000,"participationMaximale": 50,"depose": 2000,"location": {"lat": 50.606043 ,"lon": 3.139681},"destination": {"lat": 50.293596, "lon": 2.779127},"role": "autostoppeur"}'
