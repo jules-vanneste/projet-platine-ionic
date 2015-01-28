@@ -76,6 +76,10 @@ angular.module('starter.controllers', [])
 
     $state.go('app.accueil');
 
+    //TODO
+    /*
+      Premiere connexion, données à vide ok mais si l'utilisateur se connecte une deuxieme fois ou +, ne pas reinitialiser les données
+    */
     client.index({
       index: 'users',
       type: 'user',
@@ -160,8 +164,7 @@ angular.module('starter.controllers', [])
 
   $scope.calcRoute = function() {
     var start = "" + latitude + ", " + longitude + "";
-    var end = "" + $stateParams.destination + "";
-    alert(end + '-' + start);
+    var end = "" + $stateParams.latitude + ", " + $stateParams.longitude + "";
     var request = {
       origin:start,
       destination:end,
@@ -196,13 +199,11 @@ angular.module('starter.controllers', [])
     }, function (error, response) {
       console.log("There was an error in elasticsearch request error : ", error);
       console.log("There was an error in elasticsearch request response : ", response);
-      alert(JSON.stringify(response));
     });
     $scope.getAutostoppeur();
   };
 
   $scope.setDestination = function(){
-    var destination = $stateParams.destination;
     client.update({
       index: 'users',
       type: 'user',
@@ -210,15 +211,14 @@ angular.module('starter.controllers', [])
       body: {
         doc: {
           destination : {
-            lat : latitude,
-            lon : longitude
+            lat : $stateParams.latitude,
+            lon : $stateParams.longitude
           }
         }
       }
     }, function (error, response) {
       console.log("There was an error in elasticsearch request error : ", error);
       console.log("There was an error in elasticsearch request response : ", response);
-      alert(JSON.stringify(response));
     });
   }
 
@@ -253,7 +253,6 @@ angular.module('starter.controllers', [])
     }, function (error, response) {
       console.log("There was an error in elasticsearch request error : ", error);
       console.log("There was an error in elasticsearch request response : ", response);
-      //alert(JSON.stringify(response));
       var conducteur = "";
       if(response.hits.total>0){
         conducteur = response.hits.hits[0];
