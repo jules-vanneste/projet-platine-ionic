@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+ 	 <script src="jquery-1.11.1.js"></script>
+    <script src="jquery-ui.min.js"></script>
+  	<!-- son -->
+    <script src="ion.sound.min.js"></script>
+    <script src="jquery.ion.sound.min.js"></script>
+  </head>
+
+  <p>ok</p>
+
+  <script>
+  	ion.sound({
+    sounds: [
+        {
+            name: "button_click",
+        },
+        {
+            name: "notify_sound",
+            volume: 1.0
+        },
+        {
+            name: "alert_sound",
+            volume: 1.0,
+            preload: false
+        }
+    ],
+    volume: 0.5,
+    path: "sounds/",
+    preload: true
+	});
+
+  	console.log('will play');
+  	ion.sound.play("button_click");
+
+  </script>
+
+</html>

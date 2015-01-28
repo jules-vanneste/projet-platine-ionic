@@ -1,6 +1,25 @@
-function jouerSon(son) {
-document.getElementById("musique").innerHTML = '<object type="audio/mpeg" width="0" height="0" data="'+son+'"><param name="filename" value="'+son+'" /><param name="autostart" value="true" /><param name="loop" value="false" /></object>';
-}
-function arreteSon() {
-$("musique").innerHTML = '';
+ion.sound({
+    sounds: [
+        {
+            name: "button_click",
+            volume: 1.0
+        },
+        {
+            name: "notify_sound",
+            volume: 1.0
+        },
+        {
+            name: "alert_sound",
+            volume: 1.0,
+            preload: false
+        }
+    ],
+    volume: 0.5,
+    path: "sounds/",
+    preload: true
+});
+
+function play() {
+    console.log('play called');
+    ion.sound.play("button_click");
 }
