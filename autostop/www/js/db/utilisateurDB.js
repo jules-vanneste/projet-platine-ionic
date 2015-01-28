@@ -1,12 +1,8 @@
-//deleteDB("userDB");
-
 var db;
-var idUser;
-var mailUser;
-
 /** création si non existance **/
 function ouvertureBDD() {
-	var DBopenRequest = indexedDB.open("userDB", 1); //si la DB n'existe pas, elle sera créée
+	console.log('ouverture called');
+	var DBopenRequest = indexedDB.open("adressesDB", 1); //si la DB n'existe pas, elle sera créée
 	DBopenRequest.onerror = function(event) {
 	//Handle errors
 	};
@@ -14,33 +10,24 @@ function ouvertureBDD() {
 	DBopenRequest.onsuccess = function(event) {
 		console.log('La BDD existe');
 	  	db = DBopenRequest.result;
-	  	//ajoutTest();
 	};
 
 	DBopenRequest.onupgradeneeded = function(event) {
 		console.log('Création de la BDD');
 		var db = event.target.result;
-		var objectStore = db.createObjectStore("user_table", { keyPath: "id_local"});
+		var objectStore = db.createObjectStore("adresses", { autoIncrement: true});
 		//création de la table 'user_table' et ajout des champs
-		objectStore.createIndex("id_user", "id_user", { unique: true });
-		objectStore.createIndex("user_mail", "user_mail", { unique: true });
-		objectStore.createIndex("user_nom", "user_nom", {unique: true});
-		objectStore.createIndex("user_marque", "user_marque", {unique: false});
-		objectStore.createIndex("user_modele", "user_modele", {unique: false});
-		objectStore.createIndex("user_couleur", "user_couleur", {unique: false});
-		objectStore.createIndex("user_nbLibre", "user_nbLibre", {unique: false});
-		objectStore.createIndex("user_partDemandee", "user_partDemandee", {unique: false});
-		objectStore.createIndex("user_distDetour", "user_distDetour", {unique: false});
-		objectStore.createIndex("user_partMax", "user_partMax", {unique: false});
-		objectStore.createIndex("user_deposeMax", "user_deposeMax", {unique: false});
+		//objectStore.createIndex("donne", "donnee", { unique: true });
 	};
 }
 
 //ajout de données
-//data { id_local: 1, id_user: number, user_nom: string, user_mail: string, user_marque: string, etc...};
+//data { adresse: string }
 function addData(data) {
-	var transaction = db.transaction(["user_table"], "readwrite");
-	var objectStore = transaction.objectStore("user_table");
+	console.log('addData called');
+	console.log(data);
+	var transaction = db.transaction(["adresses"], "readwrite");
+	var objectStore = transaction.objectStore("adresses");
 	var request = objectStore.add(data);
 	request.onerror = function(event) {
 		console.log('Error in addData: '+ event.target.errorCode);
@@ -48,66 +35,39 @@ function addData(data) {
 }
 
 function modifData(data) {
-	var transaction = db.transaction(["user_table"], "readwrite");
-	var objectStore = transaction.objectStore("user_table");
-	var request = objectStore.put(data);
-	request.onerror = function(event) {
-		console.log('Error in modifData: '+ event.target.errorCode);
-	}
-}
-
-/** récupération de l'utilisateur et appel de la fonction d'affichage **/
-function getUser() {
-	console.log('getUser entred');
-	var transaction = db.transaction(["user_table"]);
-	var objectStore = transaction.objectStore("user_table");
-	var request = objectStore.get(1); /* identifiant 1 */
-	request.onerror = function(event) {
-	  console.log('Error in getUser()');
-	  return;
-	};
-	request.onsuccess = function(event) {
-		user = {
-			id_user: request.result.id_user, 
-			user_mail: request.result.user_mail,
-			user_nom: request.result.user_nom,
-			user_marque: request.result.user_marque,
-			user_modele: request.result.user_modele,
-			user_couleur: request.result.user_couleur,
-			user_nbLibre: request.result.user_nbLibre,
-			user_partDemandee: request.result.user_partDemandee,
-			user_distDetour: request.result.user_distDetour,
-			user_partMax: request.result.user_partMax,
-			user_deposeMax: request.result.user_deposeMax
-		};
-		idUser = user.id_user;
-		mailUser = user.user_mail;
-		affichage(user);
-		
-	};
-}
-
-function ajoutTest() {
-	console.log('Ajout test entred');
-	var d = {id_local: 1, id_user: 199, user_mail: 'test@gmail.com', user_nom: 'John', user_marque: 'Ford', user_modele: 'Escort', user_couleur: 'bleue',
-				user_nbLibre: 4, user_partDemandee: 0.25, user_distDetour: 1300, user_partMax: 0.25, user_deposeMax: 1000};
-	addData(d);
-}
-
-function deleteDB(name) {
-	//console.log('deleteDB');
-	var request = window.indexedDB.deleteDatabase(name);
-}
-
-function saveData(data) {
-	console.log('saveData called');
-	var transaction = db.transaction(["user_table"], "readwrite");
-	var objectStore = transaction.objectStore("user_table");
+	var transaction = db.transaction(["adresses"], "readwrite");
+	var objectStore = transaction.objectStore("adresses");
 	var request = objectStore.put(data);
 	request.onerror = function () {
 		console.log('Update error: ' + e)
 	}
 	request.onsuccess = function() {
-		getUser();
+		getAdresses();
 	}
+}
+
+/** récupération de l'utilisateur et appel de la fonction d'affichage **/
+function getAdresses() {
+	var defer = $.Deferred();
+	var listeAdresses = [];
+	var transaction = db.transaction(["adresses"]);
+	var objectStore = transaction.objectStore("adresses");
+	objectStore.openCursor().onsuccess = function(event) {
+	  	var cursor = event.target.result;
+		  if (cursor) {
+		    listeAdresses.push(cursor.value);
+		    ajouterOption("favSelect", cursor.value);
+		    cursor.continue();
+		  }
+		  else {
+		    console.log('No more entries');
+		    defer.resolve(listeAdresses);
+		  }
+	};
+	return defer.promise();
+}
+
+function deleteDB(name) {
+	console.log('delete called');
+	var request = window.indexedDB.deleteDatabase(name);
 }

@@ -96,7 +96,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'ion-google-place','s
     })
 
     .state('app.itineraire', {
-      url: "/itineraire/:destination",
+      url: "/itineraire/:latitude/:longitude",
       views: {
         'menuContent' :{
           templateUrl: "templates/itineraire.html",
@@ -105,12 +105,12 @@ angular.module('starter', ['ionic', 'starter.controllers', 'ion-google-place','s
       }
     })
 
-    .state('app.map', {
-      url: "/map",
+    .state('app.recherche', {
+      url: "/recherche/:latitude/:longitude",
       views: {
         'menuContent' :{
-          templateUrl: "templates/map.html",
-          controller: 'MapCtrl'
+          templateUrl: "templates/recherche.html",
+          controller: 'RechercheCtrl'
         }
       }
     })
@@ -121,6 +121,16 @@ angular.module('starter', ['ionic', 'starter.controllers', 'ion-google-place','s
         'menuContent' :{
           templateUrl: "templates/profil.html",
           controller: 'ProfilCtrl'
+        }
+      }
+    })
+
+    .state('app.favoris', {
+      url: "/favoris",
+      views: {
+        'menuContent' :{
+          templateUrl: "templates/favoris.html",
+          controller: 'FavorisCtrl'
         }
       }
     })
