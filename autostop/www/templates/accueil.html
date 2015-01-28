@@ -17,7 +17,7 @@
         <i class="icon ion-model-s"></i>
         Démarrer votre trajet
       </a>
-      <a class="button button-icon-left button-full button-content-left" ng-disabled="!location" ng-click="alert(location.formatted_address)">
+      <a class="button button-icon-left button-full button-content-left" ng-disabled="!location" ng-href="#/app/recherche/{{location.geometry.location.k}}/{{location.geometry.location.D}}">
         <i class="icon ion-search"></i>
         Trouver un véhicule
       </a>
@@ -25,9 +25,6 @@
         <i class="icon ion-archive"></i>
         Enregistrer votre destination
       </a>
-      <span>
-        location: {{location}}
-      </span>
     </div>
   </ion-content>
 </ion-view>

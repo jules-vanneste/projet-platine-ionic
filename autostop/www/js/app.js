@@ -105,12 +105,12 @@ angular.module('starter', ['ionic', 'starter.controllers', 'ion-google-place','s
       }
     })
 
-    .state('app.map', {
-      url: "/map",
+    .state('app.recherche', {
+      url: "/recherche/:latitude/:longitude",
       views: {
         'menuContent' :{
-          templateUrl: "templates/map.html",
-          controller: 'MapCtrl'
+          templateUrl: "templates/recherche.html",
+          controller: 'RechercheCtrl'
         }
       }
     })
