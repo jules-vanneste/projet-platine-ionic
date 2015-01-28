@@ -39,6 +39,8 @@ angular.module('starter.controllers', [])
 
 .controller('AccueilCtrl', function($scope, $stateParams, client, store) {
   $scope.hideBackButton = true;
+  ouvertureBDD();
+  play();
   $scope.saveAdresse = function(adresse) {
     console.log('saveAdresse called');
     addData(adresse);
@@ -341,10 +343,6 @@ angular.module('starter.controllers', [])
 })
 
 .controller('ProfilCtrl', function($scope, $stateParams, store, client) {
-  //ouvertureBDD();
-  //getUser(); // getUser() va appeler la fonction d'affichage - utilisateurDB.js
-  //jouerSon("sons/orage.mp3");
-
   $scope.user = store.get('user');
   $scope.profile = store.get('profile');
 
@@ -404,7 +402,6 @@ angular.module('starter.controllers', [])
        title: title,
        template: question
      });
-     /*
      confirmPopup.then(function(res) {
        if(res) {
          console.log('You are sure');
@@ -412,7 +409,6 @@ angular.module('starter.controllers', [])
          console.log('You are not sure');
        }
      });
-    */
    };
 
    // An alert dialog
