@@ -105,7 +105,8 @@ angular.module('starter.controllers', [])
         destination : {
             lat : 0.0,
             lon : 0.0
-        }
+        },
+        match: 0
       }
     }, function (error, response) {
       console.log("There was an error in elasticsearch request error : ", error);
@@ -314,7 +315,8 @@ angular.module('starter.controllers', [])
           destination : {
             lat: 0.0,
             lon: 0.0
-          }
+          },
+          match: 0
         }
       }
     }, function (error, response) {
@@ -328,7 +330,7 @@ angular.module('starter.controllers', [])
 })
 
 .controller('RechercheCtrl', function($scope, $ionicLoading, $ionicPopup, $compile, $stateParams, $interval, $location, store, client) {
-  var latitude, longitude, profile, user;
+  var latitude, longitude, profile, user, conducteur;
 
   profile = store.get('profile');
   user = store.get('user');
@@ -425,8 +427,6 @@ angular.module('starter.controllers', [])
                 params: {
                   "loc" : user.location 
                 }
-               /*     
-                  */
               }
             },
             {
@@ -465,12 +465,10 @@ angular.module('starter.controllers', [])
     }, function (error, response) {
       console.log("There was an error in elasticsearch request error : ", error);
       console.log("There was an error in elasticsearch request response : ", response);
-      var conducteur = "";
       if(response.hits.total>0){
         $ionicLoading.hide();
         conducteur = response.hits.hits[0];
-        //alert("Un conducteur est dispo : " + conducteur._source.nom);
-
+        
         $scope.showConfirm("Véhicule à proximité","Souhaitez-vous envoyer une demande de prise en charge à ce conducteur ?");
       }  
     });
@@ -484,6 +482,41 @@ angular.module('starter.controllers', [])
        okText: 'Oui',
        okType: 'button-balanced'
     });
+    confirmPopup.then(function(res) {
+     if(res) {
+       var dist = distance(
+          conducteur._source.location.lat,
+          conducteur._source.location.lon,
+          user.location.lat,
+          user.location.lon,
+          "M"
+        );
+
+        var match = client.index({
+          index: 'matchs',
+          type: 'match',
+          body: {
+            conducteur: conducteur._id,
+            autostoppeur: 'google-oauth2|101046949406679467409', //profile.user_id,
+            distance: dist,
+            etat: 1
+          }
+        }, function (error, response) {
+          console.log("There was an error in elasticsearch request error : ", error);
+          console.log("There was an error in elasticsearch request response : ", response);
+        });
+
+        $scope.loading = $ionicLoading.show({
+          content: 'En attente de la réponse du conducteur...',
+          showBackdrop: false,
+          template: 'En attente de la réponse du conducteur...'
+        });
+
+      }
+      else{
+        // TODO RECHERCHE UN AUTRE VEHICULE
+      }
+   });
   }
 
   $scope.exit = function(){
