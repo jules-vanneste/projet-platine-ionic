@@ -54,7 +54,7 @@ angular.module('starter.controllers', [])
   }, function (error, response) {
     console.log("There was an error in elasticsearch request error : ", error);
     console.log("There was an error in elasticsearch request response : ", response);
-    store.set('user',response._source);
+    store.set('user',response);
   });
 })
 
@@ -229,7 +229,7 @@ angular.module('starter.controllers', [])
       }, function (error, response) {
         console.log("There was an error in elasticsearch request error : ", error);
         console.log("There was an error in elasticsearch request response : ", response);
-        store.set('user',response._source);
+        store.set('user',response);
       });
       /*user.destination.lat = parseFloat($stateParams.latitude);
       user.destination.lon = parseFloat($stateParams.longitude);
@@ -238,7 +238,7 @@ angular.module('starter.controllers', [])
   }
 
   $scope.getAutostoppeur = function(){
-    var res = client.search({
+    client.search({
       body: {
         query: {
           match_all : {}
@@ -247,7 +247,7 @@ angular.module('starter.controllers', [])
           and:[
             {
               geo_distance: {
-                distance: user.detour + 'm',
+                distance: user._source.detour + 'm',
                 location: {
                   lat: latitude,
                   lon: longitude
@@ -266,7 +266,7 @@ angular.module('starter.controllers', [])
               script: {
                 script : "doc['destination'].distance(dest.lat, dest.lon) <= doc['depose'].value",
                 params : {
-                  "dest" : user.destination
+                  "dest" : user._source.destination
                 }
               }
             },
@@ -274,7 +274,7 @@ angular.module('starter.controllers', [])
               script: {
                 script : "part <= doc['participationMaximale'].value",
                 params : {
-                  "part" : user.participationDemandee
+                  "part" : user._source.participationDemandee
                 }
               }
             },
@@ -282,7 +282,7 @@ angular.module('starter.controllers', [])
               script: {
                 script : "nbPlaces > 0",
                 params : {
-                  "nbPlaces" : user.nbPlaces
+                  "nbPlaces" : user._source.nbPlaces
                 }
               }
             }
@@ -331,38 +331,27 @@ angular.module('starter.controllers', [])
 })
 
 .controller('RechercheCtrl', function($scope, $ionicLoading, $ionicPopup, $compile, $stateParams, $interval, $location, store, client) {
-  var latitude, longitude, profile, user, conducteur, intervalPromise;
+  var latitude, longitude, profile, user, conducteur, intervalPromise, match;
 
   profile = store.get('profile');
   user = store.get('user');
 
   $scope.init = function() {
     $scope.setDestination();
-    $scope.getCurrentPosition();
+    $scope.searchConducteur();
   };
 
   $scope.getCurrentPosition = function() {
-    $scope.loading = $ionicLoading.show({
-      content: 'Recherche de véhicules en cours...',
-      showBackdrop: false,
-      template: 'Recherche de véhicules en cours...'
-    });
-
     navigator.geolocation.getCurrentPosition(function(pos) {
       latitude = pos.coords.latitude;
       longitude = pos.coords.longitude;
  //     $ionicLoading.hide();
-      $scope.update();
     }, function(error) {
       alert('Unable to get location: ' + error.message);
     });
   };
 
-  $scope.reload = function() {
-    $scope.getCurrentPosition();
-  };
-
-  $scope.update = function(){
+  $scope.updatePosition = function(){
     client.update({
       index: 'users',
       type: 'user',
@@ -380,7 +369,6 @@ angular.module('starter.controllers', [])
       console.log("There was an error in elasticsearch request error : ", error);
       console.log("There was an error in elasticsearch request response : ", response);
     });
-    $scope.getConducteur();
   };
 
   $scope.setDestination = function(){
@@ -406,16 +394,18 @@ angular.module('starter.controllers', [])
       }, function (error, response) {
         console.log("There was an error in elasticsearch request error : ", error);
         console.log("There was an error in elasticsearch request response : ", response);
-        store.set('user',response._source);
+        store.set('user',response);
       });
-      /*user.destination.lat = parseFloat($stateParams.latitude);
-      user.destination.lon = parseFloat($stateParams.longitude);
-      store.set("user",user);*/
     });
   }
 
   $scope.getConducteur = function(){
-    var res = client.search({
+    $scope.loading = $ionicLoading.show({
+      content: 'Recherche de véhicules en cours...',
+      showBackdrop: false,
+      template: 'Recherche de véhicules en cours...'
+    });
+    client.search({
       body: {
         query: {
           match_all : {}
@@ -426,7 +416,7 @@ angular.module('starter.controllers', [])
               script: {
                 script: "doc['location'].distance(loc.lat, loc.lon) <= doc['detour'].value",
                 params: {
-                  "loc" : user.location 
+                  "loc" : user._source.location 
                 }
               }
             },
@@ -440,10 +430,10 @@ angular.module('starter.controllers', [])
             },
             {
               geo_distance: {
-                distance: user.depose + 'm',
+                distance: user._source.depose + 'm',
                 destination: {
-                  lat: user.destination.lat,
-                  lon: user.destination.lon
+                  lat: user._source.destination.lat,
+                  lon: user._source.destination.lon
                 }
               }
             },
@@ -451,7 +441,7 @@ angular.module('starter.controllers', [])
               script: {
                 script : "part >= doc['participationDemandee'].value",
                 params : {
-                  "part" : user.participationMaximale
+                  "part" : user._source.participationMaximale
                 }
               }
             },
@@ -467,10 +457,67 @@ angular.module('starter.controllers', [])
       console.log("There was an error in elasticsearch request error : ", error);
       console.log("There was an error in elasticsearch request response : ", response);
       if(response.hits.total>0){
+        $interval.cancel(intervalPromise);
         $ionicLoading.hide();
         conducteur = response.hits.hits[0];
         
         $scope.showConfirm("Véhicule à proximité","Souhaitez-vous envoyer une demande de prise en charge à ce conducteur ?");
+      }  
+    });
+  }
+
+  $scope.getMatch = function(){
+    client.search({
+      index: "matchs",
+      body: {
+        query : {
+          match : {
+             autostoppeur: user._id
+          }
+        }
+      }
+    }, function (error, response) {
+      console.log("There was an error in elasticsearch request error : ", error);
+      console.log("There was an error in elasticsearch request response : ", response);
+      if(response.hits.total>0){
+        $ionicLoading.hide();
+        match = response.hits.hits[0];
+        switch(match._source.etat){
+          case 0:
+            $scope.loading = $ionicLoading.show({
+              content: "Erreur lors de la prise en charge...",
+              showBackdrop: false,
+              template: "Erreur lors de la prise en charge..."
+            });
+            client.delete({
+              index: 'matchs',
+              type: 'match',
+              id: match._id
+            }, function (error, response) {
+              console.log("There was an error in elasticsearch request error : ", error);
+              console.log("There was an error in elasticsearch request response : ", response);
+            });
+            $interval.cancel(intervalPromise);
+            intervalPromise = $interval(function(){ $scope.searchConducteur(); }, 100000);
+            break;
+          case 1:
+            //Rien
+            break;
+          case 2:
+            $scope.loading = $ionicLoading.show({
+              content: "Demande acceptée par l'autostoppeur, véhicule en approche (" + match._source.distance + ")",
+              showBackdrop: false,
+              template: "Demande acceptée par l'autostoppeur, véhicule en approche (" + match._source.distance + ")"
+            });
+            break;
+          default:
+            $scope.loading = $ionicLoading.show({
+              content: "Félicitation, profitez de votre trajet, vous devrez...",
+              showBackdrop: false,
+              template: "Félicitation, profitez de votre trajet, vous devrez..."
+            });
+            break;
+        }
       }  
     });
   }
@@ -488,8 +535,8 @@ angular.module('starter.controllers', [])
        var dist = distance(
           conducteur._source.location.lat,
           conducteur._source.location.lon,
-          user.location.lat,
-          user.location.lon,
+          user._source.location.lat,
+          user._source.location.lon,
           "M"
         );
 
@@ -512,10 +559,11 @@ angular.module('starter.controllers', [])
           showBackdrop: false,
           template: 'En attente de la réponse du conducteur...'
         });
-
+        $interval.cancel(intervalPromise);
+        intervalPromise = $interval(function(){ $scope.checkMatch(); }, 20000);
       }
       else{
-        // TODO RECHERCHE UN AUTRE VEHICULE
+        intervalPromise = $interval(function(){ $scope.searchConducteur(); }, 100000);
       }
    });
   }
@@ -549,7 +597,19 @@ angular.module('starter.controllers', [])
     $location.path('/');
   };
 
-  intervalPromise = $interval(function(){ $scope.reload(); }, 100000);
+  $scope.searchConducteur = function() {
+    $scope.getCurrentPosition();
+    $scope.updatePosition();
+    $scope.getConducteur();
+  };
+
+  $scope.checkMatch = function() {
+    $scope.getCurrentPosition();
+    $scope.updatePosition();
+    $scope.getMatch();
+  };
+
+  intervalPromise = $interval(function(){ $scope.searchConducteur(); }, 100000);
 })
 
 .controller('ProfilCtrl', function($scope, $stateParams, store, client) {
@@ -557,22 +617,21 @@ angular.module('starter.controllers', [])
   $scope.profile = store.get('profile');
 
   $scope.update = function(user, profile){
-    alert(JSON.stringify(user));
     client.index({
       index: 'users',
       type: 'user',
       id: /*profile.user_id*/ 'google-oauth2|101046949406679467409',
       body: {
-        nom: user.nom,
+        nom: user._source.nom,
         mail: /*profile.email,*/ "jules.vanneste@gmail.com",
-        marque: user.marque,
-        modele: user.modele,
-        couleur: user.couleur,
-        nbPlaces: user.nbPlaces,
-        participationDemandee: parseInt(user.participationDemandee),
-        detour: parseInt(user.detour),
-        participationMaximale: parseInt(user.participationMaximale),
-        depose: parseInt(user.depose),
+        marque: user._source.marque,
+        modele: user._source.modele,
+        couleur: user._source.couleur,
+        nbPlaces: user._source.nbPlaces,
+        participationDemandee: parseInt(user._source.participationDemandee),
+        detour: parseInt(user._source.detour),
+        participationMaximale: parseInt(user._source.participationMaximale),
+        depose: parseInt(user._source.depose),
         role: 'visiteur',
         location : {
             lat : 0.0,
@@ -586,7 +645,7 @@ angular.module('starter.controllers', [])
     }, function (error, response) {
       console.log("There was an error in elasticsearch request error : ", error);
       console.log("There was an error in elasticsearch request response : ", response);
-      store.set('user',response._source);
+      store.set('user',response);
     });
   }
 })
