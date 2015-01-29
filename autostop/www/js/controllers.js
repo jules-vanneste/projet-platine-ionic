@@ -119,7 +119,7 @@ angular.module('starter.controllers', [])
 })
 
 .controller('ItineraireCtrl', function($scope, $ionicLoading, $compile, $stateParams, $interval, $location, store, client) {
-  var latitude, longitude, profile, user;
+  var latitude, longitude, profile, user, intervalPromise;
   $scope.directionsService;
   $scope.directionsService = new google.maps.DirectionsService();
 
@@ -323,14 +323,15 @@ angular.module('starter.controllers', [])
       console.log("There was an error in elasticsearch request error : ", error);
       console.log("There was an error in elasticsearch request response : ", response);
     });
+    $interval.cancel(intervalPromise);
     $location.path('/');
   };
 
-  $interval(function(){ $scope.reload(); }, 100000);
+  intervalPromise = $interval(function(){ $scope.reload(); }, 100000);
 })
 
 .controller('RechercheCtrl', function($scope, $ionicLoading, $ionicPopup, $compile, $stateParams, $interval, $location, store, client) {
-  var latitude, longitude, profile, user, conducteur;
+  var latitude, longitude, profile, user, conducteur, intervalPromise;
 
   profile = store.get('profile');
   user = store.get('user');
@@ -541,10 +542,11 @@ angular.module('starter.controllers', [])
       console.log("There was an error in elasticsearch request error : ", error);
       console.log("There was an error in elasticsearch request response : ", response);
     });
+    $interval.cancel(intervalPromise);
     $location.path('/');
   };
 
-  $interval(function(){ $scope.reload(); }, 100000);
+  intervalPromise = $interval(function(){ $scope.reload(); }, 100000);
 })
 
 .controller('ProfilCtrl', function($scope, $stateParams, store, client) {
