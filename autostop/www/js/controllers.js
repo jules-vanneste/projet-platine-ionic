@@ -520,6 +520,9 @@ angular.module('starter.controllers', [])
   }
 
   $scope.exit = function(){
+
+    //TODO SI exit Supprimer le match + mise à jour du match à 0
+
     client.update({
       index: 'users',
       type: 'user',
