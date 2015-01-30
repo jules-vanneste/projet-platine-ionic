@@ -291,13 +291,15 @@ angular.module('starter.controllers', [])
             $scope.showConfirm("Un auto-stoppeur a été trouvé se trouvant à " + match._source.distance + "m de votre position. Souhaitez-vous le prendre en charge ?");
             break;
           case 2:
-            if(autostoppeur==null ||autostoppeur==""){
-              $scope.getAutostoppeur();
-            }
+
+            $scope.getAutostoppeur();
             $timeout(function() {
               $scope.calcRouteChercherAutostoppeur();
             }, 10000);
             
+            //TODO VERIFIER SI LES DEUX UTILISATEURS SONT PROCHES POUR LANCER UNE NOUVELLE FENETRE DE NAVIGATION 
+            //ET EMMENER LE TICKET AU CAS 3 SI CONDUCTEUR ET AUTOSTOPPEUR SE SONT TROUVES
+
             break;
           default:
             // Poursuite du trajet calcul du nouveau itineraire + enlever une place
@@ -306,9 +308,9 @@ angular.module('starter.controllers', [])
             // Sinon on recherche de nouveau l'itineraire jusqu'au conducteur
             break;
         }
-    /*    $interval.cancel(intervalPromise);
-        intervalPromise = $interval(function(){ $scope.reload(); }, 50000)
-     */ } 
+        $interval.cancel(intervalPromise);
+        intervalPromise = $interval(function(){$scope.update(); }, 50000)
+      } 
       else{
         $interval.cancel(intervalPromise);
         intervalPromise = $interval(function(){ $scope.reload(); }, 50000);
@@ -365,13 +367,12 @@ angular.module('starter.controllers', [])
         $scope.getAutostoppeur();
     
         $timeout(function() {
-          $scope.checkMatchConducteur(); 
+          //$scope.checkMatchConducteur(); 
           $scope.calcRouteChercherAutostoppeur();
         }, 50000);
       }
       else{
         $interval.cancel(intervalPromise);
-        // Poursuite de l'itineraire en cours à faire !!!!!!!!!!
         intervalPromise = $interval(function(){ $scope.reload(); }, 50000);
       }
    });
