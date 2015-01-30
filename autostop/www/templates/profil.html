@@ -5,37 +5,35 @@
     <ion-content class="has-header">
         <div class="list list-inset">
             <label class="item item-input">
-                <input id="nomUser" type="text" placeholder="Nom d'utilisateur" ng-model="user.nom" />
+                <input type="text" placeholder="Nom d'utilisateur" ng-model="user.nom" />
             </label>
         </div>
         <div class="button-bar">
-            <a class="button button-green" id="button1" onclick="toggleDiv('button1', 'button2')">Conducteur</a>
-            <a class="button button-stable" id="button2" onclick="toggleDiv('button1', 'button2')">Auto-stoppeur</a>
+            <button class="button button-green" ng-click="printOther()" ng-disabled="printConductor">Conducteur</button>
+            <button class="button button-green" ng-click="printOther()" ng-disabled="!printConductor">Auto-stoppeur</button>
         </div>
-        <div id="divConducteur" class="divToggle">
+        <div ng-show="printConductor">
             <div class="list list-inset">
                 <label class="item item-input">
-                    <input id="marque" type="text" placeholder="Marque" ng-model="user.marque"/>
+                    <input type="text" placeholder="Marque" ng-model="user.marque"/>
                 </label>
                 <label class="item item-input">
-                    <input id="modele" type="text" placeholder="Modèle" ng-model="user.modele"/>
+                    <input type="text" placeholder="Modèle" ng-model="user.modele"/>
                 </label>
                 <label class="item item-input">
-                    <input id="couleur" type="text" placeholder="Couleur" ng-model="user.couleur"/>
+                    <input type="text" placeholder="Couleur" ng-model="user.couleur"/>
                 </label>
             </div>
             <div class="list">
                 <div class="row item item-input">
                     <label class="col col-65">Nombre de places disponibles : </label>
-                    <input class="col col-25" id="nbPlaces" type="number" min="0" max="8" ng-model="user.nbPlaces"/>
+                    <input class="col col-25" type="number" min="0" max="8" ng-model="user.nbPlaces"/>
                 </div>
-            </div>
-            <div class="list">
                 <div class="row item item-input">
                     <label class="col col-75">Participation demandée :</label>
                     <label id="resParticipation" class="col col-25 align-right">{{ user.participationDemandee / 100 }} €/km</label>
                 </div>
-                <div class="item range range-positive">
+                <div class="range">
                     <i class="icon ion-minus"></i>
                     <input type="range" name="volume" min="0" max="100" ng-model="user.participationDemandee" id="sliderParticipation" ondrag="printValueSlider('sliderParticipation', 'resParticipation', 0.01, 2, '€/km');"/>
                     <i class="icon ion-plus"></i>
@@ -44,39 +42,33 @@
                     <label class="col col-75">Distance de détour acceptée :</label>
                     <label id="resDistance" class="col col-25 align-right">{{ user.detour }} m</label>
                 </div>
-                <div class="item range range-positive">
+                <div class="range">
                     <i class="icon ion-minus"></i>
                     <input type="range" name="volume" min="1000" max="5000" ng-model="user.detour" step="100" id="sliderDistance" ondrag="printValueSlider('sliderDistance', 'resDistance', 1, 0, 'm');"/>
                     <i class="icon ion-plus"></i>
                 </div>
             </div>
         </div>
-        <div id="divAutostoppeur" class="divToggle" style="display:none;">
-            <div class="list">
-                <div class="row item item-input">
-                    <label class="col col-75">Participation maximale :</label>
-                    <label id="resParticipationMax" class="col col-25 align-right">{{ user.participationMaximale / 100 }} €/km</label>
-                </div>
-                <div class="item range range-positive">
-                    <i class="icon ion-minus"></i>
-                    <input type="range" name="volume" min="0" max="100" ng-model="user.participationMaximale" id="sliderParticipationMax" ondrag="printValueSlider('sliderParticipationMax', 'resParticipationMax', 0.01, 2, '€/km');"/>
-                    <i class="icon ion-plus"></i>
-                </div>
-                <div class="row item item-input">
-                    <label class="col col-75">Etre déposé à moins de :</label>
-                    <label id="resDepose" class="col col-25 align-right">{{ user.depose }} m</label>
-                </div>
-                <div class="item range range-positive">
-                    <i class="icon ion-minus"></i>
-                    <input type="range" name="volume" min="1000" max="3000" ng-model="user.depose" step="100" id="sliderDepose" ondrag="printValueSlider('sliderDepose', 'resDepose', 1, 0, 'm');"/>
-                    <i class="icon ion-plus"></i>
-                </div>
+        <div ng-hide="printConductor">
+            <div class="row item item-input">
+                <label class="col col-75">Participation maximale :</label>
+                <label id="resParticipationMax" class="col col-25 align-right">{{ user.participationMaximale / 100 }} €/km</label>
+            </div>
+            <div class="range">
+                <i class="icon ion-minus"></i>
+                <input type="range" name="volume" min="0" max="100" ng-model="user.participationMaximale" id="sliderParticipationMax" ondrag="printValueSlider('sliderParticipationMax', 'resParticipationMax', 0.01, 2, '€/km');"/>
+                <i class="icon ion-plus"></i>
+            </div>
+            <div class="row item item-input">
+                <label class="col col-75">Etre déposé à moins de :</label>
+                <label id="resDepose" class="col col-25 align-right">{{ user.depose }} m</label>
+            </div>
+            <div class="range">
+                <i class="icon ion-minus"></i>
+                <input type="range" name="volume" min="1000" max="3000" ng-model="user.depose" step="100" id="sliderDepose" ondrag="printValueSlider('sliderDepose', 'resDepose', 1, 0, 'm');"/>
+                <i class="icon ion-plus"></i>
             </div>
         </div>
-        <div class="button-bar">
-            <input class="button button-green" id="butSave" ng-click="update(user, profile)" value="Sauvegarder"/>
-            <!--<a class="button button-green" id="butSave" ng-controller="PopupCtrl" ng-click="showAlert('Sauvegarde', 'Save effectuée')" onclick="jouerSon('sons/orage.mp3')">Sauvegarder</a>
-            <div id="musique"></div> -->
-       </div>
+        <button class="button button-block button-green" ng-click="update(user, profile)">Sauvegarder</button>
     </ion-content>
 </ion-view>

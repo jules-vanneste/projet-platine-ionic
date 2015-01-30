@@ -612,26 +612,31 @@ angular.module('starter.controllers', [])
   intervalPromise = $interval(function(){ $scope.searchConducteur(); }, 100000);
 })
 
-.controller('ProfilCtrl', function($scope, $stateParams, store, client) {
-  $scope.user = store.get('user');
+.controller('ProfilCtrl', function($scope, $stateParams, $ionicPopup, store, client) {
+  $scope.user = store.get('user')._source;
   $scope.profile = store.get('profile');
+  $scope.printConductor = true;
+
+  $scope.printOther = function(){
+    $scope.printConductor = !$scope.printConductor;
+  }
 
   $scope.update = function(user, profile){
     client.index({
       index: 'users',
       type: 'user',
-      id: /*profile.user_id*/ 'google-oauth2|101046949406679467409',
+      id: /*profile.user_id*/ '22',
       body: {
-        nom: user._source.nom,
+        nom: user.nom,
         mail: /*profile.email,*/ "jules.vanneste@gmail.com",
-        marque: user._source.marque,
-        modele: user._source.modele,
-        couleur: user._source.couleur,
-        nbPlaces: user._source.nbPlaces,
-        participationDemandee: parseInt(user._source.participationDemandee),
-        detour: parseInt(user._source.detour),
-        participationMaximale: parseInt(user._source.participationMaximale),
-        depose: parseInt(user._source.depose),
+        marque: user.marque,
+        modele: user.modele,
+        couleur: user.couleur,
+        nbPlaces: user.nbPlaces,
+        participationDemandee: parseInt(user.participationDemandee),
+        detour: parseInt(user.detour),
+        participationMaximale: parseInt(user.participationMaximale),
+        depose: parseInt(user.depose),
         role: 'visiteur',
         location : {
             lat : 0.0,
@@ -646,22 +651,17 @@ angular.module('starter.controllers', [])
       console.log("There was an error in elasticsearch request error : ", error);
       console.log("There was an error in elasticsearch request response : ", response);
       store.set('user',response);
+      $scope.showAlert();
     });
   }
-})
 
-.controller('PlaylistsCtrl', function($scope) {
-  $scope.playlists = [
-    { title: 'Reggae', id: 1 },
-    { title: 'Chill', id: 2 },
-    { title: 'Dubstep', id: 3 },
-    { title: 'Indie', id: 4 },
-    { title: 'Rap', id: 5 },
-    { title: 'Cowbell', id: 6 }
-  ];
-})
-
-.controller('PlaylistCtrl', function($scope, $stateParams) {
+  $scope.showAlert = function() {
+    var alertPopup = $ionicPopup.alert({
+      title: 'Configuration Sauvegardé',
+      template: 'Votre nouvelle configuration a été sauvegardé'
+    });
+    alertPopup.then(function(res) {});
+  }
 })
 
 .controller('PopupCtrl', function($scope, $ionicPopup, $timeout) {
