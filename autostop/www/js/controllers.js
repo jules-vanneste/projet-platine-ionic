@@ -138,12 +138,19 @@ angular.module('starter.controllers', [])
     };
     var map = new google.maps.Map(document.getElementById("map"), mapOptions);
 
+    $scope.loading = $ionicLoading.show({
+      content: "Démarrage de l'itineraire...",
+      showBackdrop: false,
+      template: "Démarrage de l'itineraire..."
+    });
+
     $scope.map = map;
     $scope.directionsDisplay.setMap(map);
     $scope.setDestination();
     $scope.calcRoute($stateParams.latitude, $stateParams.longitude);
     $scope.updateLocation();
     $scope.getMatchConducteur();
+    $ionicLoading.hide();
   };
 
   $scope.calcRoute = function(lat, lng) {
@@ -152,12 +159,6 @@ angular.module('starter.controllers', [])
     if(!$scope.map) {
       return;
     }
-
-    $scope.loading = $ionicLoading.show({
-      content: "Démarrage de l'itineraire...",
-      showBackdrop: false,
-      template: "Démarrage de l'itineraire..."
-    });
 
     navigator.geolocation.getCurrentPosition(function(pos) {
       latitude = pos.coords.latitude;
@@ -311,6 +312,17 @@ angular.module('starter.controllers', [])
             // Sinon on recherche de nouveau l'itineraire jusqu'au conducteur
             $interval.cancel(intervalPromise);
 
+            client.delete({
+              index: 'matchs',
+              type: 'match',
+              id: match._id
+            }, function (error, response) {
+              console.log("There was an error in elasticsearch request error : ", error);
+              console.log("There was an error in elasticsearch request response : ", response);
+            });
+            
+            $scope.reloadItineraireClassique();
+            intervalPromise = $interval(function(){ $scope.reloadItineraireClassique(); }, 25000);
             break;
         }
       } 
@@ -592,10 +604,10 @@ angular.module('starter.controllers', [])
             break;
           case 1:
             $scope.loading = $ionicLoading.show({
-          content: 'En attente de la réponse du conducteur...',
-          showBackdrop: false,
-          template: 'En attente de la réponse du conducteur...'
-        });
+              content: 'En attente de la réponse du conducteur...',
+              showBackdrop: false,
+              template: 'En attente de la réponse du conducteur...'
+            });
             break;
           case 2:
             $scope.loading = $ionicLoading.show({
@@ -603,6 +615,10 @@ angular.module('starter.controllers', [])
               showBackdrop: false,
               template: "Demande acceptée par le conducteur, véhicule en approche (" + match._source.distance + ")"
             });
+
+            if(match._source.distance<200.00){
+              $scope.showConfirmPris("Véhicule tout proche de votre position","Avez-vous été pris en charge par le conducteur ?");
+            }
             break;
           default:
             $scope.loading = $ionicLoading.show({
@@ -665,8 +681,52 @@ angular.module('starter.controllers', [])
    });
   }
 
-  $scope.exit = function(){
+  $scope.showConfirmPris = function(title, question) {
+     var confirmPopup = $ionicPopup.confirm({
+       title: title,
+       template: question,
+       cancelText: 'Non',
+       okText: 'Oui',
+       okType: 'button-balanced'
+    });
+    confirmPopup.then(function(res) {
+     if(res) {
+        var dist = distance(
+          conducteur._source.location.lat,
+          conducteur._source.location.lon,
+          user._source.location.lat,
+          user._source.location.lon,
+          "M"
+        );
 
+        var match = client.update({
+          index: 'matchs',
+          type: 'match',
+          body: {
+            conducteur: conducteur._id,
+            autostoppeur: 'google-oauth2|101046949406679467409', //profile.user_id,
+            distance: dist,
+            etat: 3
+          }
+        }, function (error, response) {
+          console.log("There was an error in elasticsearch request error : ", error);
+          console.log("There was an error in elasticsearch request response : ", response);
+        });
+
+        $scope.loading = $ionicLoading.show({
+          content: 'Vous devez autant ....',
+          showBackdrop: false,
+          template: 'Vous devez autant ....'
+        });
+        $interval.cancel(intervalPromise);
+
+        //TODO REDIRIGER UTILISATEUR VERS UNE PAGE DE RESUME
+      }
+   });
+  }
+
+  $scope.exit = function(){
+    console.log("exit","exit");
     //TODO SI exit Supprimer le match + mise à jour du match à 0
 
     client.update({
