@@ -704,13 +704,8 @@ angular.module('starter.controllers', [])
           index: 'matchs',
           type: 'match',
           body: {
-<<<<<<< HEAD
-            conducteur: conducteur._id,
-            autostoppeur: '100', //profile.user_id,
-=======
-/*            conducteur: conducteur._id,
+/*          conducteur: conducteur._id,
             autostoppeur: 'google-oauth2|101046949406679467409', //profile.user_id,*/
->>>>>>> 17e5127e2227f22ca6a55b8654082d3c94f7e5d1
             distance: dist,
             etat: 3
           }
