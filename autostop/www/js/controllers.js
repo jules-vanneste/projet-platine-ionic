@@ -320,7 +320,7 @@ angular.module('starter.controllers', [])
               console.log("There was an error in elasticsearch request error : ", error);
               console.log("There was an error in elasticsearch request response : ", response);
             });
-            
+
             $scope.reloadItineraireClassique();
             intervalPromise = $interval(function(){ $scope.reloadItineraireClassique(); }, 25000);
             break;
@@ -617,6 +617,7 @@ angular.module('starter.controllers', [])
             });
 
             if(match._source.distance<200.00){
+              $ionicLoading.hide();
               $scope.showConfirmPris("Véhicule tout proche de votre position","Avez-vous été pris en charge par le conducteur ?");
             }
             break;
@@ -703,8 +704,8 @@ angular.module('starter.controllers', [])
           index: 'matchs',
           type: 'match',
           body: {
-            conducteur: conducteur._id,
-            autostoppeur: 'google-oauth2|101046949406679467409', //profile.user_id,
+/*            conducteur: conducteur._id,
+            autostoppeur: 'google-oauth2|101046949406679467409', //profile.user_id,*/
             distance: dist,
             etat: 3
           }
