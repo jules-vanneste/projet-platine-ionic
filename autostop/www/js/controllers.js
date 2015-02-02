@@ -703,6 +703,7 @@ angular.module('starter.controllers', [])
         var match = client.update({
           index: 'matchs',
           type: 'match',
+          id: match._id,
           body: {
             doc: {
               distance: dist,
