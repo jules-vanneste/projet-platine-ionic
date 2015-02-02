@@ -284,7 +284,8 @@ angular.module('starter.controllers', [])
               console.log("There was an error in elasticsearch request response : ", response);
             });
             $interval.cancel(intervalPromise);
-            intervalPromise = $interval(function(){ $scope.reloadItineraireClassique(); }, 50000);
+            $scope.reloadItineraireClassique();
+            intervalPromise = $interval(function(){ $scope.reloadItineraireClassique(); }, 25000);
             break;
           case 1:
             console.log(" case 1"," case 1");
@@ -315,7 +316,7 @@ angular.module('starter.controllers', [])
       } 
       else{
         $interval.cancel(intervalPromise);
-        intervalPromise = $interval(function(){ $scope.reloadItineraireClassique(); }, 50000);
+        intervalPromise = $interval(function(){ $scope.reloadItineraireClassique(); }, 25000);
       } 
     });
   }
@@ -371,12 +372,14 @@ angular.module('starter.controllers', [])
     
         $timeout(function() {
           $interval.cancel(intervalPromise);
-          intervalPromise = $interval(function(){ $scope.reloadItineraireDetour();}, 50000);
-        }, 50000);
+          $scope.reloadItineraireDetour();
+          intervalPromise = $interval(function(){ $scope.reloadItineraireDetour();}, 25000);
+        }, 5000);
       }
       else{
         $interval.cancel(intervalPromise);
-        intervalPromise = $interval(function(){ $scope.reloadItineraireClassique(); }, 50000);
+        $scope.reloadItineraireClassique();
+        intervalPromise = $interval(function(){ $scope.reloadItineraireClassique(); }, 25000);
       }
    });
   }
@@ -422,7 +425,9 @@ angular.module('starter.controllers', [])
 
   $scope.init = function() {
     $scope.setDestination();
+    $interval.cancel(intervalPromise);
     $scope.searchConducteur();
+    intervalPromise = $interval(function(){ $scope.searchConducteur(); }, 25000);
   };
 
   $scope.getCurrentPosition = function() {
@@ -582,7 +587,8 @@ angular.module('starter.controllers', [])
               console.log("There was an error in elasticsearch request response : ", response);
             });
             $interval.cancel(intervalPromise);
-            intervalPromise = $interval(function(){ $scope.searchConducteur(); }, 100000);
+            $scope.searchConducteur();  
+            intervalPromise = $interval(function(){ $scope.searchConducteur(); }, 25000);
             break;
           case 1:
             $scope.loading = $ionicLoading.show({
@@ -648,10 +654,13 @@ angular.module('starter.controllers', [])
           template: 'En attente de la réponse du conducteur...'
         });
         $interval.cancel(intervalPromise);
-        intervalPromise = $interval(function(){ $scope.checkMatchAutostoppeur(); }, 20000);
+        $scope.checkMatchAutostoppeur();
+        intervalPromise = $interval(function(){ $scope.checkMatchAutostoppeur(); }, 25000);
       }
       else{
-        intervalPromise = $interval(function(){ $scope.searchConducteur(); }, 100000);
+        $interval.cancel(intervalPromise);
+        $scope.searchConducteur();
+        intervalPromise = $interval(function(){ $scope.searchConducteur(); }, 25000);
       }
    });
   }
@@ -696,8 +705,6 @@ angular.module('starter.controllers', [])
     $scope.updatePosition();
     $scope.getMatchAutostoppeur();
   };
-
-  intervalPromise = $interval(function(){ $scope.searchConducteur(); }, 100000);
 })
 
 .controller('ProfilCtrl', function($scope, $stateParams, $ionicPopup, store, client) {
