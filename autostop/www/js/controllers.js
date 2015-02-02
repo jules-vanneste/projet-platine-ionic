@@ -127,6 +127,7 @@ angular.module('starter.controllers', [])
   user = store.get('user');
 
   $scope.init = function() {
+    console.log("init","init");
     $scope.directionsDisplay = new google.maps.DirectionsRenderer();
     var myLatlng = new google.maps.LatLng(48.858859,2.3470599);
 
@@ -141,16 +142,21 @@ angular.module('starter.controllers', [])
     $scope.directionsDisplay.setMap(map);
     $scope.setDestination();
     $scope.getCurrentPosition();
+    $scope.calcRoute();
+    $scope.updateLocation();
+    $scope.getMatchConducteur();
   };
 
   $scope.getCurrentPosition = function() {
+    console.log("getCurrentPosition","getCurrentPosition");
     if(!$scope.map) {
       return;
     }
 
     $scope.loading = $ionicLoading.show({
-      content: 'Getting current location...',
-      showBackdrop: false
+      content: "Démarrage de l'itineraire...",
+      showBackdrop: false,
+      template: "Démarrage de l'itineraire..."
     });
 
     navigator.geolocation.getCurrentPosition(function(pos) {
@@ -158,14 +164,13 @@ angular.module('starter.controllers', [])
       longitude = pos.coords.longitude;
       $scope.map.setCenter(new google.maps.LatLng(latitude, longitude));
       $ionicLoading.hide();
-      $scope.calcRoute();
-      $scope.update();
     }, function(error) {
       alert('Unable to get location: ' + error.message);
     });
   };
 
   $scope.calcRoute = function() {
+    console.log("calcRoute","calcRoute");
     var start = "" + latitude + ", " + longitude + "";
     var end = "" + $stateParams.latitude + ", " + $stateParams.longitude + "";
     var request = {
@@ -181,6 +186,7 @@ angular.module('starter.controllers', [])
   };
 
   $scope.calcRouteChercherAutostoppeur = function() {
+    console.log("calcRouteChercherAutostoppeur","calcRouteChercherAutostoppeur");
     var start = "" + latitude + ", " + longitude + "";
     var end = "" + autostoppeur._source.location.lat + ", " + autostoppeur._source.location.lon + "";
     var request = {
@@ -195,12 +201,24 @@ angular.module('starter.controllers', [])
     });
   };
 
-  $scope.reload = function() {
-    $scope.getCurrentPosition();
+  $scope.reloadItineraireClassique = function() {
+    console.log("reloadItineraireClassique","reloadItineraireClassique");
+    $scope.getCurrentPosition(); 
+    $scope.updateLocation(); 
     $scope.calcRoute();
+    $scope.getMatchConducteur();
   };
 
-  $scope.update = function(){
+  $scope.reloadItineraireDetour = function() {
+    console.log("reloadItineraireDetour","reloadItineraireDetour");
+    $scope.getCurrentPosition(); 
+    $scope.updateLocation(); 
+    $scope.calcRouteChercherAutostoppeur(); 
+    $scope.getMatchConducteur();
+  }
+
+  $scope.updateLocation = function(){
+    console.log("update","update");
     client.update({
       index: 'users',
       type: 'user',
@@ -218,11 +236,10 @@ angular.module('starter.controllers', [])
       console.log("There was an error in elasticsearch request error : ", error);
       console.log("There was an error in elasticsearch request response : ", response);
     });
-    //$scope.getAutostoppeur();
-    $scope.getMatchConducteur();
   };
 
   $scope.setDestination = function(){
+    console.log("setDestination","setDestination");
     client.update({
       index: 'users',
       type: 'user',
@@ -254,6 +271,7 @@ angular.module('starter.controllers', [])
   }
 
   $scope.getMatchConducteur = function(){
+    console.log("getMatchConducteur","getMatchConducteur");
     client.search({
       index: "matchs",
       body: {
@@ -271,6 +289,7 @@ angular.module('starter.controllers', [])
         match = response.hits.hits[0];
         switch(match._source.etat){
           case 0:
+            console.log(" case 0"," case 0");
             $scope.loading = $ionicLoading.show({
               content: "Erreur lors de la prise en charge...",
               showBackdrop: false,
@@ -285,40 +304,44 @@ angular.module('starter.controllers', [])
               console.log("There was an error in elasticsearch request response : ", response);
             });
             $interval.cancel(intervalPromise);
-            intervalPromise = $interval(function(){ $scope.reload(); }, 50000);
+            intervalPromise = $interval(function(){ $scope.reloadItineraireClassique(); }, 50000);
             break;
           case 1:
+            console.log(" case 1"," case 1");
+            $interval.cancel(intervalPromise);
             $scope.showConfirm("Un auto-stoppeur a été trouvé se trouvant à " + match._source.distance + "m de votre position. Souhaitez-vous le prendre en charge ?");
             break;
           case 2:
-
+            console.log(" case 2"," case 2");
             $scope.getAutostoppeur();
-            $timeout(function() {
+            /*$timeout(function() {
               $scope.calcRouteChercherAutostoppeur();
-            }, 10000);
+            }, 10000);*/
             
             //TODO VERIFIER SI LES DEUX UTILISATEURS SONT PROCHES POUR LANCER UNE NOUVELLE FENETRE DE NAVIGATION 
             //ET EMMENER LE TICKET AU CAS 3 SI CONDUCTEUR ET AUTOSTOPPEUR SE SONT TROUVES
 
             break;
           default:
+            console.log("default","default");
             // Poursuite du trajet calcul du nouveau itineraire + enlever une place
             // Demande si l'autostoppeur a ete pris en charge SI OUI
             // Poursuite du trajet calcul du nouveau itineraire + enlever une place + supprimer match
             // Sinon on recherche de nouveau l'itineraire jusqu'au conducteur
+            $interval.cancel(intervalPromise);
+
             break;
         }
-        $interval.cancel(intervalPromise);
-        intervalPromise = $interval(function(){$scope.update(); }, 50000)
       } 
       else{
         $interval.cancel(intervalPromise);
-        intervalPromise = $interval(function(){ $scope.reload(); }, 50000);
+        intervalPromise = $interval(function(){ $scope.reloadItineraireClassique(); }, 50000);
       } 
     });
   }
 
   $scope.getAutostoppeur = function(){
+    console.log("getAutostoppeur","getAutostoppeur");
     client.search({
       index: "users",
       q: "_id:"+match._source.autostoppeur
@@ -367,13 +390,13 @@ angular.module('starter.controllers', [])
         $scope.getAutostoppeur();
     
         $timeout(function() {
-          //$scope.checkMatchConducteur(); 
-          $scope.calcRouteChercherAutostoppeur();
+          $interval.cancel(intervalPromise);
+          intervalPromise = $interval(function(){ $scope.reloadItineraireDetour();}, 50000);
         }, 50000);
       }
       else{
         $interval.cancel(intervalPromise);
-        intervalPromise = $interval(function(){ $scope.reload(); }, 50000);
+        intervalPromise = $interval(function(){ $scope.reloadItineraireClassique(); }, 50000);
       }
    });
   }
@@ -408,6 +431,7 @@ angular.module('starter.controllers', [])
   };
 
   $scope.checkMatchConducteur = function() {
+    console.log("checkMatchConducteur","checkMatchConducteur");
     $scope.getCurrentPosition();
     $scope.updatePosition();
   };
@@ -590,9 +614,9 @@ angular.module('starter.controllers', [])
             break;
           case 2:
             $scope.loading = $ionicLoading.show({
-              content: "Demande acceptée par l'autostoppeur, véhicule en approche (" + match._source.distance + ")",
+              content: "Demande acceptée par le conducteur, véhicule en approche (" + match._source.distance + ")",
               showBackdrop: false,
-              template: "Demande acceptée par l'autostoppeur, véhicule en approche (" + match._source.distance + ")"
+              template: "Demande acceptée par le conducteur, véhicule en approche (" + match._source.distance + ")"
             });
             break;
           default:
@@ -625,14 +649,14 @@ angular.module('starter.controllers', [])
           "M"
         );
 
-        var match = client.update({
+        var match = client.index({
           index: 'matchs',
           type: 'match',
           body: {
             conducteur: conducteur._id,
             autostoppeur: 'google-oauth2|101046949406679467409', //profile.user_id,
             distance: dist,
-            etat: 2
+            etat: 1
           }
         }, function (error, response) {
           console.log("There was an error in elasticsearch request error : ", error);
