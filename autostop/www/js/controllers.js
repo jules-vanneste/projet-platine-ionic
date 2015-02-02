@@ -704,10 +704,10 @@ angular.module('starter.controllers', [])
           index: 'matchs',
           type: 'match',
           body: {
-/*            conducteur: conducteur._id,
-            autostoppeur: 'google-oauth2|101046949406679467409', //profile.user_id,*/
-            distance: dist,
-            etat: 3
+            doc: {
+              distance: dist,
+              etat: 3
+            }
           }
         }, function (error, response) {
           console.log("There was an error in elasticsearch request error : ", error);
