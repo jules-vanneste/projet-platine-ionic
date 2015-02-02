@@ -141,13 +141,13 @@ angular.module('starter.controllers', [])
     $scope.map = map;
     $scope.directionsDisplay.setMap(map);
     $scope.setDestination();
-    $scope.getCurrentPosition();
-    $scope.calcRoute();
+    $scope.calcRoute($stateParams.latitude, $stateParams.longitude);
     $scope.updateLocation();
     $scope.getMatchConducteur();
   };
 
-  $scope.getCurrentPosition = function() {
+  $scope.calcRoute = function(lat, lng) {
+
     console.log("getCurrentPosition","getCurrentPosition");
     if(!$scope.map) {
       return;
@@ -164,56 +164,36 @@ angular.module('starter.controllers', [])
       longitude = pos.coords.longitude;
       $scope.map.setCenter(new google.maps.LatLng(latitude, longitude));
       $ionicLoading.hide();
+
+      console.log("calcRoute","calcRoute");
+      var start = "" + latitude + ", " + longitude + "";
+      var end = "" + lat + ", " + lng + "";
+      var request = {
+        origin:start,
+        destination:end,
+        travelMode: google.maps.TravelMode.DRIVING
+      };
+      $scope.directionsService.route(request, function(result, status) {
+        if (status == google.maps.DirectionsStatus.OK) {
+          $scope.directionsDisplay.setDirections(result);
+        }
+      });
     }, function(error) {
       alert('Unable to get location: ' + error.message);
     });
   };
 
-  $scope.calcRoute = function() {
-    console.log("calcRoute","calcRoute");
-    var start = "" + latitude + ", " + longitude + "";
-    var end = "" + $stateParams.latitude + ", " + $stateParams.longitude + "";
-    var request = {
-      origin:start,
-      destination:end,
-      travelMode: google.maps.TravelMode.DRIVING
-    };
-    $scope.directionsService.route(request, function(result, status) {
-      if (status == google.maps.DirectionsStatus.OK) {
-        $scope.directionsDisplay.setDirections(result);
-      }
-    });
-  };
-
-  $scope.calcRouteChercherAutostoppeur = function() {
-    console.log("calcRouteChercherAutostoppeur","calcRouteChercherAutostoppeur");
-    var start = "" + latitude + ", " + longitude + "";
-    var end = "" + autostoppeur._source.location.lat + ", " + autostoppeur._source.location.lon + "";
-    var request = {
-      origin:start,
-      destination:end,
-      travelMode: google.maps.TravelMode.DRIVING
-    };
-    $scope.directionsService.route(request, function(result, status) {
-      if (status == google.maps.DirectionsStatus.OK) {
-        $scope.directionsDisplay.setDirections(result);
-      }
-    });
-  };
-
   $scope.reloadItineraireClassique = function() {
     console.log("reloadItineraireClassique","reloadItineraireClassique");
-    $scope.getCurrentPosition(); 
+    $scope.calcRoute($stateParams.latitude, $stateParams.longitude);
     $scope.updateLocation(); 
-    $scope.calcRoute();
     $scope.getMatchConducteur();
   };
 
   $scope.reloadItineraireDetour = function() {
     console.log("reloadItineraireDetour","reloadItineraireDetour");
-    $scope.getCurrentPosition(); 
+    $scope.calcRoute(autostoppeur._source.location.lat, autostoppeur._source.location.lon); 
     $scope.updateLocation(); 
-    $scope.calcRouteChercherAutostoppeur(); 
     $scope.getMatchConducteur();
   }
 
@@ -430,11 +410,6 @@ angular.module('starter.controllers', [])
     // Suppression de tous les matchs du conducteur ?????
   };
 
-  $scope.checkMatchConducteur = function() {
-    console.log("checkMatchConducteur","checkMatchConducteur");
-    $scope.getCurrentPosition();
-    $scope.updatePosition();
-  };
   // MAUVAIS LE RELOAD? IL RECHARGE LE CALCITINERAIRE MAIS SI ON EST EN TRAIN DE CHERCHER UN AUTO STOPPEUR ON VA PERDRE NOTRE ITINERAIRE 
   //intervalPromise = $interval(function(){ $scope.reload(); }, 100000);
 })
@@ -589,7 +564,7 @@ angular.module('starter.controllers', [])
       console.log("There was an error in elasticsearch request error : ", error);
       console.log("There was an error in elasticsearch request response : ", response);
       if(response.hits.total>0){
-        $ionicLoading.hide();
+        //$ionicLoading.hide();
         match = response.hits.hits[0];
         switch(match._source.etat){
           case 0:
@@ -610,7 +585,11 @@ angular.module('starter.controllers', [])
             intervalPromise = $interval(function(){ $scope.searchConducteur(); }, 100000);
             break;
           case 1:
-            //Rien
+            $scope.loading = $ionicLoading.show({
+          content: 'En attente de la réponse du conducteur...',
+          showBackdrop: false,
+          template: 'En attente de la réponse du conducteur...'
+        });
             break;
           case 2:
             $scope.loading = $ionicLoading.show({
@@ -734,7 +713,7 @@ angular.module('starter.controllers', [])
     client.index({
       index: 'users',
       type: 'user',
-      id: /*profile.user_id*/ '22',
+      id: /*profile.user_id*/ 'google-oauth2|101046949406679467409',
       body: {
         nom: user.nom,
         mail: /*profile.email,*/ "jules.vanneste@gmail.com",
