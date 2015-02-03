@@ -12,8 +12,7 @@
       <span>Participation demandée : {{ participationDemandee }}</span>
       <span>Récapitulatif des autostoppeurs :</span>     
       <div ng-repeat="match in matchsAutostoppeur">
-        <span>{{ match.nom }} vous doit {{ match.cout }}</span>
-        <span>{{ match }}</span>
+        <span>{{ match.nom }} vous doit {{ match.cout }}€</span>
       </div>
     </div>
     <button class="button button-full button-assertive nomargin" ng-click="exit()"><i class="icon ion-close-round"></i> Quitter la navigation</button>
