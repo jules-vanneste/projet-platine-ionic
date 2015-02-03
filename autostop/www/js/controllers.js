@@ -700,7 +700,7 @@ angular.module('starter.controllers', [])
             nom: user._source.nom,
             distance: dist,
             distanceTotale: distTotal,
-            cout: distTotal/1000 * conducteur._source.participationDemandee,
+            cout: distTotal/1000 * conducteur._source.participationDemandee/100,
             etat: 1
           }
         }, function (error, response) {
