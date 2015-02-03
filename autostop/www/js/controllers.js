@@ -683,6 +683,14 @@ angular.module('starter.controllers', [])
           "M"
         );
 
+        var distTotal = distance(
+          user._source.location.lat,
+          user._source.location.lon,
+          parseFloat($stateParams.latitude),
+          parseFloat($stateParams.longitude),
+          "M"
+        );
+
         var match = client.index({
           index: 'matchs',
           type: 'match',
@@ -691,8 +699,8 @@ angular.module('starter.controllers', [])
             autostoppeur: '100', //profile.user_id,
             nom: user._source.nom,
             distance: dist,
-            distanceTotale: dist,
-            cout: dist * conducteur._source.participationDemandee,
+            distanceTotale: distTotal,
+            cout: distTotal/1000 * conducteur._source.participationDemandee,
             etat: 1
           }
         }, function (error, response) {
