@@ -121,6 +121,7 @@ angular.module('starter.controllers', [])
 
 .controller('ItineraireCtrl', function($scope, $ionicLoading, $ionicPopup, $compile, $stateParams, $interval, $location, $timeout, store, client) {
   var latitude, longitude, profile, user, intervalPromise, match, autostoppeur;
+  $scope.showMap = true;
   $scope.directionsService;
   $scope.directionsService = new google.maps.DirectionsService();
 
@@ -269,6 +270,11 @@ angular.module('starter.controllers', [])
       if(response.hits.total>0){
         $ionicLoading.hide();
         match = response.hits.hits[0];
+        for(var i=1; i<response.hits.total; i++){
+          if(response.hits.hits[i].etat==1 || response.hits.hits[i].etat==2){
+            match = response.hits.hits[i];
+          }  
+        }
         switch(match._source.etat){
           case 0:
             console.log(" case 0"," case 0");
@@ -281,9 +287,9 @@ angular.module('starter.controllers', [])
               index: 'matchs',
               type: 'match',
               id: match._id
-            }, function (error, response) {
-              console.log("There was an error in elasticsearch request error : ", error);
-              console.log("There was an error in elasticsearch request response : ", response);
+            }, function (error2, response2) {
+              console.log("There was an error in elasticsearch request error : ", error2);
+              console.log("There was an error in elasticsearch request response : ", response2);
             });
             $interval.cancel(intervalPromise);
             $scope.reloadItineraireClassique();
@@ -314,17 +320,40 @@ angular.module('starter.controllers', [])
             // Sinon on recherche de nouveau l'itineraire jusqu'au conducteur
             $interval.cancel(intervalPromise);
 
-            client.delete({
-              index: 'matchs',
-              type: 'match',
-              id: match._id
-            }, function (error, response) {
-              console.log("There was an error in elasticsearch request error : ", error);
-              console.log("There was an error in elasticsearch request response : ", response);
-            });
+            var dist = distance(
+              user._source.location.lat,
+              user._source.location.lon,
+              parseFloat($stateParams.latitude),
+              parseFloat($stateParams.longitude),
+              "M"
+            );
 
-            $scope.reloadItineraireClassique();
-            intervalPromise = $interval(function(){ $scope.reloadItineraireClassique(); }, 25000);
+            if(dist<500.00){
+              $scope.showMap = false;
+              $interval.cancel(intervalPromise);
+              $scope.participationDemandee=user._source.participationDemandee;
+              var matchsAutostoppeur = [];
+              for(var i=0; i<response.hits.total; i++){
+                if(response.hits.hits[i]._source.etat==3){
+                  matchsAutostoppeur.push(response.hits.hits[i]._source);
+                }  
+              }
+              $scope.matchsAutostoppeur=matchsAutostoppeur;
+
+              client.delete({
+                index: 'matchs',
+                type: 'match',
+                //id: match._id
+              }, function (error, response) {
+                console.log("There was an error in elasticsearch request error : ", error);
+                console.log("There was an error in elasticsearch request response : ", response);
+              });
+            }
+            else{
+              $timeout(function() {
+                $scope.reloadItineraireClassique();
+              }, 25000);
+            }
             break;
         }
       } 
@@ -659,8 +688,15 @@ angular.module('starter.controllers', [])
           type: 'match',
           body: {
             conducteur: conducteur._id,
+<<<<<<< HEAD
             autostoppeur: '100', //profile.user_id,
+=======
+            autostoppeur: 'google-oauth2|101046949406679467409', //profile.user_id,
+            nom: user._source.nom,
+>>>>>>> 951f29d53532ea15b709860dc61a88130a4d732d
             distance: dist,
+            distanceTotale: dist,
+            cout: dist * conducteur._source.participationDemandee,
             etat: 1
           }
         }, function (error, response) {
