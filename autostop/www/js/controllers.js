@@ -688,12 +688,8 @@ angular.module('starter.controllers', [])
           type: 'match',
           body: {
             conducteur: conducteur._id,
-<<<<<<< HEAD
             autostoppeur: '100', //profile.user_id,
-=======
-            autostoppeur: 'google-oauth2|101046949406679467409', //profile.user_id,
             nom: user._source.nom,
->>>>>>> 951f29d53532ea15b709860dc61a88130a4d732d
             distance: dist,
             distanceTotale: dist,
             cout: dist * conducteur._source.participationDemandee,
