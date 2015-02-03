@@ -40,9 +40,10 @@ angular.module('starter.controllers', [])
 .controller('AccueilCtrl', function($scope, $stateParams, client, store) {
   $scope.hideBackButton = true;
   ouvertureBDD();
-  play();
+  //play();
   $scope.saveAdresse = function(adresse) {
     console.log('saveAdresse called');
+    play();
     addData(adresse);
   }
 
@@ -292,6 +293,7 @@ angular.module('starter.controllers', [])
             console.log(" case 1"," case 1");
             $interval.cancel(intervalPromise);
             $scope.showConfirm("Un auto-stoppeur a été trouvé se trouvant à " + match._source.distance + "m de votre position. Souhaitez-vous le prendre en charge ?");
+            play();
             break;
           case 2:
             console.log(" case 2"," case 2");
@@ -563,6 +565,7 @@ angular.module('starter.controllers', [])
         conducteur = response.hits.hits[0];
         
         $scope.showConfirm("Véhicule à proximité","Souhaitez-vous envoyer une demande de prise en charge à ce conducteur ?");
+        play();
       }  
     });
   }
