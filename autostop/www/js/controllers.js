@@ -616,7 +616,7 @@ angular.module('starter.controllers', [])
               template: "Demande acceptée par le conducteur, véhicule en approche (" + match._source.distance + ")"
             });
 
-            if(match._source.distance<200.00){
+            if(match._source.distance<1000.00){
               $ionicLoading.hide();
               $scope.showConfirmPris("Véhicule tout proche de votre position","Avez-vous été pris en charge par le conducteur ?");
             }
@@ -700,7 +700,7 @@ angular.module('starter.controllers', [])
           "M"
         );
 
-        var match = client.update({
+        client.update({
           index: 'matchs',
           type: 'match',
           id: match._id,
