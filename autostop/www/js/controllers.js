@@ -752,9 +752,9 @@ angular.module('starter.controllers', [])
             conducteur: conducteur._id,
             autostoppeur: '100', //profile.user_id,
             nom: user._source.nom,
-            distance: dist.toFixed(0),
-            distanceTotale: distTotal.toFixed(0),
-            cout: (distTotal/1000 * conducteur._source.participationDemandee/100).toFixed(2),
+            distance: parseFloat(dist.toFixed(0)),
+            distanceTotale: parseFloat(distTotal.toFixed(0)),
+            cout: parseFloat((distTotal/1000 * conducteur._source.participationDemandee/100).toFixed(2)),
             etat: 1
           }
         }, function (error, response) {
