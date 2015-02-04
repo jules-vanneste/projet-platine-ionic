@@ -122,6 +122,7 @@ angular.module('starter.controllers', [])
 .controller('ItineraireCtrl', function($scope, $ionicLoading, $ionicPopup, $compile, $stateParams, $interval, $location, $timeout, store, client) {
   var latitude, longitude, profile, user, intervalPromise, match, autostoppeur;
   $scope.showMap = true;
+  $scope.hideBackButton = true;
   $scope.directionsService;
   $scope.directionsService = new google.maps.DirectionsService();
 
@@ -465,7 +466,8 @@ angular.module('starter.controllers', [])
 
   profile = store.get('profile');
   user = store.get('user');
-
+  $scope.hideBackButton = true;
+  
   $scope.init = function() {
     $scope.showMap = true;
     $scope.setDestination();
