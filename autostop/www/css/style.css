@@ -14,3 +14,8 @@
 .button.button-icon-left > .icon{margin-right: 10px; width: 32px; display: inline-block; text-align: center;}
 .nopadding{padding: 0 !important;}
 .nomargin{margin: 0 !important;}
+.block{padding:10px;}
+.center{text-align: center;}
+.block-green h4{color: white;}
+.block-green{background-color: #6DB33F; color: white;}
+.button.button-balanced {background-color: #6db33f;}

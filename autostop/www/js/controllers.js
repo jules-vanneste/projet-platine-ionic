@@ -757,13 +757,19 @@ angular.module('starter.controllers', [])
           console.log("There was an error in elasticsearch request error : ", error);
           console.log("There was an error in elasticsearch request response : ", response);
         });
-
+        /*
         $scope.loading = $ionicLoading.show({
           content: 'Vous devez autant ....',
           showBackdrop: false,
           template: 'Vous devez autant ....'
         });
+        */
+
         $interval.cancel(intervalPromise);
+        $scope.showMap = false;
+        $scope.participationDemandee=conducteur._source.participationDemandee;
+        $scope.distanceTotale=match._source.distanceTotale;
+        $scope.cout=match._source.cout;
 
         //TODO REDIRIGER UTILISATEUR VERS UNE PAGE DE RESUME
       }
