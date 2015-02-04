@@ -15,23 +15,52 @@ function ouvertureBDD() {
 	DBopenRequest.onupgradeneeded = function(event) {
 		console.log('Création de la BDD');
 		var db = event.target.result;
-		var objectStore = db.createObjectStore("adresses", { autoIncrement: true});
-		//création de la table 'user_table' et ajout des champs
-		//objectStore.createIndex("donne", "donnee", { unique: true });
+		var objectStore = db.createObjectStore("adresses", { keyPath:"id", autoIncrement: true});
+		objectStore.createIndex("adresse", "adresse", {unique: true});
+		objectStore.createIndex("geo", "geo", {unique: false});
+	};
+}
+
+/* pas propre... */
+function ouvertureBDDandGetAdresses() {
+	console.log('ouverture called');
+	var DBopenRequest = indexedDB.open("adressesDB", 1); //si la DB n'existe pas, elle sera créée
+	DBopenRequest.onerror = function(event) {
+	//Handle errors
+	};
+
+	DBopenRequest.onsuccess = function(event) {
+	  	db = DBopenRequest.result;
+	  	getAdresses("favSelect");
+	};
+
+	DBopenRequest.onupgradeneeded = function(event) {
+		console.log('Création de la BDD');
+		var db = event.target.result;
+		var objectStore = db.createObjectStore("adresses", { keyPath:"id", autoIncrement: true});
+		objectStore.createIndex("adresse", "adresse", {unique: true});
+		objectStore.createIndex("geo", "geo", {unique: false});
 	};
 }
 
 //ajout de données
-//data { adresse: string }
+//data { adresse: string, geo: string }
 function addData(data) {
-	console.log('addData called');
-	console.log(data);
+	var defer = $.Deferred();
+	var isOk;
 	var transaction = db.transaction(["adresses"], "readwrite");
 	var objectStore = transaction.objectStore("adresses");
 	var request = objectStore.add(data);
 	request.onerror = function(event) {
 		console.log('Error in addData: '+ event.target.errorCode);
+		isOk = false;
+		defer.resolve(isOk);
 	}
+	request.onsuccess = function(event) {
+		isOk = true;
+		defer.resolve(isOk);
+	}
+	return defer.promise();
 }
 
 function modifData(data) {
@@ -47,7 +76,7 @@ function modifData(data) {
 }
 
 /** récupération de l'utilisateur et appel de la fonction d'affichage **/
-function getAdresses() {
+function getAdresses(selectName) {
 	var defer = $.Deferred();
 	var listeAdresses = [];
 	var transaction = db.transaction(["adresses"]);
@@ -55,12 +84,12 @@ function getAdresses() {
 	objectStore.openCursor().onsuccess = function(event) {
 	  	var cursor = event.target.result;
 		  if (cursor) {
-		    listeAdresses.push(cursor.value);
-		    ajouterOption("favSelect", cursor.value);
+		    listeAdresses.push(cursor.value.adresse);
+		   	ajouterOption(selectName, cursor.value.adresse, cursor.value.geo);
 		    cursor.continue();
 		  }
 		  else {
-		    console.log('No more entries');
+		  	/* no more entries */
 		    defer.resolve(listeAdresses);
 		  }
 	};
