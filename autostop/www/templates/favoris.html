@@ -3,23 +3,22 @@
         <button menu-toggle="left" class="button button-icon icon ion-navicon"></button>
     </ion-nav-buttons>
     <ion-content class="has-header">
-    <div class="list">
 
+    <div class="list">
 	  <label class="item item-input item-select">
 	    <div class="input-label">
 	      Favoris:
 	    </div>
 	    <select id="favSelect" ng-model="adresse"></select>
 	  </label>
-
-	</div>
+	 </div>
 
     <div class="list">
-      <a class="button button-icon-left button-full button-content-left" ng-disabled="!adresse" ng-href="#/app/itineraire/'{{adresse}}'">
+      <a class="button button-icon-left button-full button-content-left" ng-disabled="!adresse" ng-href="#/app/itineraire/{{adresse}}">
         <i class="icon ion-model-s"></i>
         Démarrer votre trajet
       </a>
-      <a class="button button-icon-left button-full button-content-left" ng-disabled="!adresse" href="#/app/map/'{{adresse}}'">
+      <a class="button button-icon-left button-full button-content-left" ng-disabled="!adresse" href="#/app/recherche/{{adresse}}">
         <i class="icon ion-search"></i>
         Trouver un véhicule
       </a>

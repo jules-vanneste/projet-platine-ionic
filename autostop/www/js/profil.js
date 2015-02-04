@@ -1,7 +1,8 @@
 /** permet d'afficher dans le profil les informations de l'utilisateur **/
-function ajouterOption(idSelect, valeur) {
+function ajouterOption(idSelect, valeur, geo) {
 	var opt = document.createElement("option");
 	opt.innerHTML = valeur;
+	opt.value = geo;
 	document.getElementById(idSelect).appendChild(opt);
 }
 /*
