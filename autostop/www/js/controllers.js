@@ -143,7 +143,7 @@ angular.module('starter.controllers', [])
 })
 
 .controller('ItineraireCtrl', function($scope, $ionicLoading, $ionicNavBarDelegate, $ionicPopup, $compile, $stateParams, $interval, $location, $timeout, store, client) {
-  var latitude, longitude, profile, user, intervalPromise, match, autostoppeur, etat=0;
+  var latitude, longitude, profile, user, intervalPromise, match, autostoppeur, dist, etat=0;
   $scope.showMap = true;
   $scope.hideBackButton = true;
   $scope.directionsService;
@@ -339,9 +339,6 @@ angular.module('starter.controllers', [])
             // Poursuite du trajet calcul du nouveau itineraire + enlever une place + supprimer match
             // Sinon on recherche de nouveau l'itineraire jusqu'au conducteur
 
-            $scope.showMap = false;
-            $ionicNavBarDelegate.showBar(false);
-
             if(etat != 3){
               $interval.cancel(intervalPromise);
               $scope.reloadItineraireClassique();
@@ -349,7 +346,7 @@ angular.module('starter.controllers', [])
               etat = 3;
             }
             else{
-              var dist = distance(
+              dist = distance(
                 user._source.location.lat,
                 user._source.location.lon,
                 parseFloat($stateParams.latitude),
@@ -357,9 +354,8 @@ angular.module('starter.controllers', [])
                 "M"
               );
 
-              alert(dist);
-
-              if(dist<500.00){
+              if(dist < 500.00){
+                $ionicNavBarDelegate.showBar(false);
                 $scope.showMap = false;
                 $interval.cancel(intervalPromise);
                 $scope.participationDemandee=user._source.participationDemandee.toFixed(2);
@@ -506,7 +502,7 @@ angular.module('starter.controllers', [])
   //intervalPromise = $interval(function(){ $scope.reload(); }, 100000);
 })
 
-.controller('RechercheCtrl', function($scope, $ionicLoading, $ionicPopup, $compile, $stateParams, $interval, $location, store, client) {
+.controller('RechercheCtrl', function($scope, $ionicLoading, $ionicNavBarDelegate, $ionicPopup, $compile, $stateParams, $interval, $location, store, client) {
   var latitude, longitude, profile, user, conducteur, intervalPromise, match, etat=0;
 
   profile = store.get('profile');
@@ -692,6 +688,8 @@ angular.module('starter.controllers', [])
                 showBackdrop: false,
                 template: 'En attente de la réponse du conducteur...'
               });
+              $scope.checkMatchAutostoppeur();
+              intervalPromise = $interval(function(){ $scope.checkMatchAutostoppeur(); }, 25000);
               etat = 1;
             }
             break;
@@ -835,6 +833,14 @@ angular.module('starter.controllers', [])
         $scope.participationDemandee=conducteur._source.participationDemandee.toFixed(2);
         $scope.distanceTotale=match._source.distanceTotale.toFixed(0);
         $scope.cout=match._source.cout.toFixed(2);
+      }
+      else{
+        $scope.loading = $ionicLoading.show({
+          showBackdrop: false,
+          template: "En attente de l'arrivé du conducteur..."
+        });
+        $interval.cancel(intervalPromise);
+        intervalPromise = $interval(function(){ $scope.checkMatchAutostoppeur(); }, 25000);
       }
    });
   }
