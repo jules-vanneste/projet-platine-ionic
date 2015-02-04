@@ -142,7 +142,7 @@ angular.module('starter.controllers', [])
   });
 })
 
-.controller('ItineraireCtrl', function($scope, $ionicLoading, $ionicPopup, $compile, $stateParams, $interval, $location, $timeout, store, client) {
+.controller('ItineraireCtrl', function($scope, $ionicLoading, $ionicNavBarDelegate, $ionicPopup, $compile, $stateParams, $interval, $location, $timeout, store, client) {
   var latitude, longitude, profile, user, intervalPromise, match, autostoppeur;
   $scope.showMap = true;
   $scope.hideBackButton = true;
@@ -337,6 +337,8 @@ angular.module('starter.controllers', [])
 
             break;
           default:
+            $scope.showMap = false;
+            $ionicNavBarDelegate.showBar(false);
             console.log("default","default");
             // Poursuite du trajet calcul du nouveau itineraire + enlever une place
             // Demande si l'autostoppeur a ete pris en charge SI OUI
@@ -761,6 +763,9 @@ angular.module('starter.controllers', [])
     });
     confirmPopup.then(function(res) {
      if(res) {
+        $scope.showMap = false;
+        $ionicNavBarDelegate.showBar(false);
+
         var dist = distance(
           conducteur._source.location.lat,
           conducteur._source.location.lon,
