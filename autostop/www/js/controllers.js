@@ -357,6 +357,8 @@ angular.module('starter.controllers', [])
                 "M"
               );
 
+              alert(dist);
+
               if(dist<500.00){
                 $scope.showMap = false;
                 $interval.cancel(intervalPromise);
