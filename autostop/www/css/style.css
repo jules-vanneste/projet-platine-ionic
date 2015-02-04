@@ -16,8 +16,8 @@
 .nomargin{margin: 0 !important;}
 .block{padding:10px;}
 .center{text-align: center;}
-.block-green h4{color:white;}
+.block-green h4, .block-green h1{color:white;}
 .block-green{background-color: #6DB33F; color:white;}
-.block-white h4{color: #6DB33F;}
+.block-white h4, .block-white h1{color: #6DB33F;}
 .block-white {background-color: white; color: #6DB33F;}
 .button.button-balanced {background-color: #6db33f;}

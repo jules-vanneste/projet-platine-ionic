@@ -8,7 +8,7 @@
   <ion-content class="has-header">
     <div id="map" data-tap-disabled="true" ng-show="showMap"></div>
     <div id="map" ng-hide="showMap" class="block block-green center">
-      <h4><i class="ion-checkmark-round"></h4>
+      <h1><i class="ion-checkmark-circled"></i></h1>
       <h4>Félicitation vous êtes arrivé à destination !</h4>
       <p>Participation demandée : {{ participationDemandee / 100 }}€/km</p>
       <div ng-repeat="match in matchsAutostoppeur" class="card block block-white">
@@ -17,6 +17,6 @@
       </div>
     </div>
     <button class="button button-full button-assertive nomargin" ng-click="exit()" ng-show="showMap"><i class="icon ion-close-round"></i> Quitter la navigation</button>
-    <button class="button button-outline button-balanced nomargin" ng-click="exit()" ng-hide="showMap"><i class="icon ion-checkmark-round"></i> Continuer</button>
+    <button class="button button-full button-outline button-balanced nomargin" ng-click="exit()" ng-hide="showMap"><i class="icon ion-checkmark-round"></i> Continuer</button>
   </ion-content>
 </ion-view>
