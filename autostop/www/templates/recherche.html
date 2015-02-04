@@ -6,7 +6,14 @@
     <h1 class="title">Recherche</h1>
   </ion-header-bar>
   <ion-content class="has-header">
-    <div id="map"></div>
-    <button class="button button-full button-assertive nomargin" ng-click="exit()"><i class="icon ion-close-round"></i> Quitter la recherche</button>
+    <div id="map" data-tap-disabled="true" ng-show="showMap"></div>
+    <div id="map" ng-hide="showMap" class="block center block-green">
+      <h1><i class="ion-checkmark-circled"></i></h1>
+      <h4>Félicitation vous avez été pris en charge !</h4>
+      <p>Participation demandée : {{ participationDemandee / 100 }}€/km</p>
+      <p>Vous devrez {{ cout }}€ au conducteur pour effectuer votre trajet d'une distance de {{ distanceTotale/1000 }}km effectuée</p>
+    </div>
+    <button class="button button-full button-assertive nomargin" ng-click="exit()" ng-show="showMap"><i class="icon ion-close-round"></i> Quitter la navigation</button>
+    <button class="button button-full button-outline button-balanced nomargin" ng-click="exit()" ng-hide="showMap"><i class="icon ion-checkmark-round"></i> Continuer</button>
   </ion-content>
 </ion-view>
