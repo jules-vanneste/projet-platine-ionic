@@ -34,17 +34,40 @@ angular.module('starter.controllers', [])
 })
 
 .controller('FavorisCtrl', function($scope, $stateParams) {
-  getAdresses();
+  getAdresses("favSelect");
 })
 
-.controller('AccueilCtrl', function($scope, $stateParams, client, store) {
+.controller('AccueilCtrl', function($scope, $stateParams, $ionicPopup, client, store) {
   $scope.hideBackButton = true;
-  ouvertureBDD();
-  //play();
-  $scope.saveAdresse = function(adresse) {
-    console.log('saveAdresse called');
-    play();
-    addData(adresse);
+  ouvertureBDDandGetAdresses();
+
+  $scope.saveAdresse = function(adresse, k, D) {
+  	var geo = k+"/"+D;
+  	var data = {
+  		adresse: adresse,
+  		geo: geo
+  	}
+    var addD = addData(data);
+    $.when(addD).done(function(data){
+    	console.log(data);
+    	if(data) {
+    		$scope.showAlert("Itinéraire sauvegardé", "Votre itinéraire a été sauvegardé");
+    	} else {
+    		$scope.showAlert("Problème", "L'itinéraire n'a pu être sauvegardé. L'adresse est peut-être déjà existante");
+    	}
+    });
+  }
+
+  $scope.showAlert = function(title, msg) {
+    var alertPopup = $ionicPopup.alert({
+      title: title,
+      template: msg
+    });
+    alertPopup.then(function(res) {});
+  }
+
+  $scope.play = function() {
+  	play();
   }
 
   var profile = store.get('profile');

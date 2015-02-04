@@ -9,6 +9,9 @@ ion.sound({
             volume: 1.0
         },
         {
+            name: "beer_can_opening"
+        },
+        {
             name: "alert_sound",
             volume: 1.0,
             preload: false
@@ -21,5 +24,5 @@ ion.sound({
 
 function play() {
     console.log('play called');
-    ion.sound.play("button_click");
+    ion.sound.play("beer_can_opening");
 }
