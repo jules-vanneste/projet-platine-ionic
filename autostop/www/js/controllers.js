@@ -179,7 +179,6 @@ angular.module('starter.controllers', [])
   };
 
   $scope.calcRoute = function(lat, lng) {
-
     console.log("getCurrentPosition","getCurrentPosition");
     if(!$scope.map) {
       return;
@@ -433,6 +432,7 @@ angular.module('starter.controllers', [])
           template: "Recalcul de l'itineraire..."
         });
         
+        etat = 1;
         $interval.cancel(intervalPromise);
         $scope.reloadItineraireDetour();
         intervalPromise = $interval(function(){ $scope.reloadItineraireDetour();}, 25000);
@@ -452,6 +452,7 @@ angular.module('starter.controllers', [])
           console.log("There was an error in elasticsearch request error : ", error);
           console.log("There was an error in elasticsearch request response : ", response);
         });
+        etat = 0;
         $timeout(function() {
           $scope.reloadItineraireClassique();
         }, 5000);
@@ -512,12 +513,14 @@ angular.module('starter.controllers', [])
   $scope.hideBackButton = true;
   
   $scope.init = function() {
+    console.log("Recherche > Init", "On entre dans la fonction init");
     $scope.showMap = true;
     $scope.setDestination();
     $scope.checkMatchAutostoppeur();
   };
 
   $scope.getCurrentPosition = function() {
+    console.log("Recherche > getCurrentPosition", "On récupère la position de l'autostoppeur");
     navigator.geolocation.getCurrentPosition(function(pos) {
       latitude = pos.coords.latitude;
       longitude = pos.coords.longitude;
@@ -527,6 +530,7 @@ angular.module('starter.controllers', [])
   };
 
   $scope.updatePosition = function(){
+    console.log("Recherche > updatePosition", "On met à jour la position de l'autostoppeur sur le serveur");
     client.update({
       index: 'users',
       type: 'user',
@@ -547,6 +551,7 @@ angular.module('starter.controllers', [])
   };
 
   $scope.setDestination = function(){
+    console.log("Recherche > setDestination", "On met à jour la destination de l'autostoppeur sur le serveur");
     client.update({
       index: 'users',
       type: 'user',
@@ -575,6 +580,7 @@ angular.module('starter.controllers', [])
   }
 
   $scope.getConducteur = function(){
+    console.log("Recherche > getConducteur", "On regarde si un utilisateur correspond sur le serveur");
     $scope.loading = $ionicLoading.show({
       showBackdrop: false,
       template: 'Recherche de véhicules en cours...'
@@ -646,7 +652,7 @@ angular.module('starter.controllers', [])
               j++;
             }
             if(!trouver){
-              console.log("!trouver", "pas trouver => show confirme");
+              console.log("ligne 656", "On a trouvé un utilisateur valide et on demande si on envoi une demande de prise en charge");
               $interval.cancel(intervalPromise);
               proposer = true;
               conducteur = response.hits.hits[i];
@@ -655,7 +661,7 @@ angular.module('starter.controllers', [])
             i++;
           }
           if(!proposer){
-            console.log("!proposer", "pas proposer => Recherche de véhicules en cours...");
+            console.log("ligne 665", "On a rien trouver on affiche 'Recherche de véhicules en cours...'");
             $scope.loading = $ionicLoading.show({
               showBackdrop: false,
               template: 'Recherche de véhicules en cours...'
@@ -663,7 +669,7 @@ angular.module('starter.controllers', [])
           }
         }
         else{
-          console.log("else", "matchs.total == 0");
+          console.log("ligne 673", "pas de match (matchs.total == 0)");
           $interval.cancel(intervalPromise);
           conducteur = response.hits.hits[0];
           $scope.showConfirm("Véhicule à proximité","Souhaitez-vous envoyer une demande de prise en charge à ce conducteur ?");
@@ -673,6 +679,7 @@ angular.module('starter.controllers', [])
   }
 
   $scope.getMatchAutostoppeur = function(){
+    console.log("Recherche > getMatchAutostoppeur", "On recupère les matchs et on fait l'action associée");
     client.search({
       index: "matchs",
       body: {
@@ -687,12 +694,14 @@ angular.module('starter.controllers', [])
       console.log("There was an error in elasticsearch request response : ", response);
       matchs = response.hits;
       if(response.hits.total>0){
+        console.log("ligne 698", "Il y a au moins un match pour l'autostoppeur");
         match = response.hits.hits[0];
         for(var i=1; i<response.hits.total; i++){
           if(response.hits.hits[i].etat==1 || response.hits.hits[i].etat==2){
             match = response.hits.hits[i];
-          }  
+          }
         }
+        console.log("ligne 705", "Etat du match séléctionné : " + match._source.etat);
         switch(match._source.etat){
           case -2:
             $interval.cancel(intervalPromise);
@@ -757,6 +766,7 @@ angular.module('starter.controllers', [])
         }
       }
       else{
+        console.log("ligne 770", "Pas de match pour l'autostoppeur");
         $interval.cancel(intervalPromise);
         $scope.searchConducteur();
         intervalPromise = $interval(function(){ $scope.searchConducteur(); }, 25000);
@@ -778,6 +788,7 @@ angular.module('starter.controllers', [])
     });
     confirmPopup.then(function(res) {
      if(res) {
+        console.log("Ligne 792", "L'autostoppeur confirme l'envoi d'une demande de prise en charge");
         $interval.cancel(intervalPromise);
         var dist = distance(
           conducteur._source.location.lat,
@@ -817,9 +828,11 @@ angular.module('starter.controllers', [])
           template: 'En attente de la réponse du conducteur...'
         });
 
+        etat = 0;
         intervalPromise = $interval(function(){ $scope.checkMatchAutostoppeur(); }, 25000);
       }
       else{
+        console.log("Ligne 836", "L'autostoppeur rejette l'envoi d'une demande de prise en charge");
         $interval.cancel(intervalPromise);
         var dist = distance(
           conducteur._source.location.lat,
@@ -858,6 +871,7 @@ angular.module('starter.controllers', [])
           template: 'Recherche de véhicules en cours...'
         });
 
+        etat = 0;
         intervalPromise = $interval(function(){ $scope.checkMatchAutostoppeur(); }, 25000);
       }
    });
@@ -873,6 +887,7 @@ angular.module('starter.controllers', [])
     });
     confirmPopup.then(function(res) {
      if(res) {
+        console.log("Ligne 891", "L'autostoppeur confirme qu'il a été pris");
         $scope.showMap = false;
         $ionicNavBarDelegate.showBar(false);
 
@@ -906,6 +921,7 @@ angular.module('starter.controllers', [])
         $scope.cout=match._source.cout.toFixed(2);
       }
       else{
+        console.log("Ligne 925", "L'autostoppeur dit qu'il n'a pas été pris");
         $scope.loading = $ionicLoading.show({
           showBackdrop: false,
           template: "En attente de l'arrivé du conducteur..."
@@ -917,7 +933,7 @@ angular.module('starter.controllers', [])
   }
 
   $scope.exit = function(){
-    console.log("exit","exit");
+    console.log("Recherche > exit", "On quitte la navigation");
     //TODO SI exit Supprimer le match + mise à jour du match à 0
 
     client.update({
@@ -948,7 +964,6 @@ angular.module('starter.controllers', [])
           id: match._id,
           body: {
             doc: {
-              distance: dist,
               etat: 0
             }
           }
@@ -962,14 +977,14 @@ angular.module('starter.controllers', [])
   };
 
   $scope.searchConducteur = function() {
-    console.log("checkMatchAutostoppeur", "checkMatchAutostoppeur");
+    console.log("Recherche > searchConducteur", "On cherche un conducteur");
     $scope.getCurrentPosition();
     $scope.updatePosition();
     $scope.getConducteur();
   };
 
   $scope.checkMatchAutostoppeur = function() {
-    console.log("checkMatchAutostoppeur", "checkMatchAutostoppeur");
+    console.log("Recherche > checkMatchAutostoppeur", "On check les matchs de l'autostoppeur");
     $scope.getCurrentPosition();
     $scope.updatePosition();
     $scope.getMatchAutostoppeur();
