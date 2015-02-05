@@ -7,7 +7,9 @@
   </ion-header-bar>
   <ion-content class="has-header">
     <div id="map" data-tap-disabled="true"></div>
-    <button class="button button-full button-assertive nomargin" ng-click="exit()"><i class="icon ion-close-round"></i> Quitter la navigation</button>
+    <button class="button button-full button-assertive nomargin" ng-click="exit()" ng-show="button==1"><i class="icon ion-close-round"></i> Quitter la navigation</button>
+    <button class="button button-full button-energized nomargin" ng-click="annuler()" ng-show="button==2"><i class="icon ion-close-round"></i> Annuler la prise en charge</button>
+    <button class="button button-full button-positive nomargin" ng-click="reprise()" ng-show="button==3"><i class="icon ion-checkmark-round"></i> Valider si l'auto-stoppeur a été trouvé</button>
   </ion-content>
 </ion-view>
 

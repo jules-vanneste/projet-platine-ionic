@@ -74,7 +74,7 @@ angular.module('starter.controllers', [])
   client.get({
     index: 'users',
     type: 'user',
-    id: /*profile.user_id,*/ '100',
+    id: /*profile.user_id,*/ 'google-oauth2|101046949406679467409',
   }, function (error, response) {
     console.log("There was an error in elasticsearch request error : ", error);
     console.log("There was an error in elasticsearch request response : ", response);
@@ -168,7 +168,7 @@ angular.module('starter.controllers', [])
       showBackdrop: false,
       template: "Démarrage de l'itineraire..."
     });
-
+    $scope.button=1;
     $scope.map = map;
     $scope.directionsDisplay.setMap(map);
     $scope.setDestination();
@@ -228,7 +228,7 @@ angular.module('starter.controllers', [])
     client.update({
       index: 'users',
       type: 'user',
-      id: '100', //profile.user_id
+      id: 'google-oauth2|101046949406679467409', //profile.user_id
       body: {
         doc: {
           role: 'conducteur',
@@ -249,7 +249,7 @@ angular.module('starter.controllers', [])
     client.update({
       index: 'users',
       type: 'user',
-      id: '100', //profile.user_id
+      id: 'google-oauth2|101046949406679467409', //profile.user_id
       body: {
         doc: {
           destination : {
@@ -264,7 +264,7 @@ angular.module('starter.controllers', [])
       client.get({
         index: 'users',
         type: 'user',
-        id: /*profile.user_id,*/ '100',
+        id: /*profile.user_id,*/ 'google-oauth2|101046949406679467409',
       }, function (error, response) {
         console.log("There was an error in elasticsearch request error : ", error);
         console.log("There was an error in elasticsearch request response : ", response);
@@ -329,6 +329,22 @@ angular.module('starter.controllers', [])
           case 2:
             console.log(" case 2"," case 2");
             $scope.getAutostoppeur();
+            
+            $timeout(function() {
+              $scope.button = 2;
+              dist = distance(
+                user._source.location.lat,
+                user._source.location.lon,
+                autostoppeur._source.location.lat,
+                autostoppeur._source.location.lon,
+                "M"
+              );
+
+              if(dist < 1000.00){
+                $scope.button = 3;
+              }
+            }, 5000);
+
             etat = 2;
             break;
             
@@ -338,8 +354,8 @@ angular.module('starter.controllers', [])
             // Demande si l'autostoppeur a ete pris en charge SI OUI
             // Poursuite du trajet calcul du nouveau itineraire + enlever une place + supprimer match
             // Sinon on recherche de nouveau l'itineraire jusqu'au conducteur
-
             if(etat != 3){
+              $scope.button=1;
               $interval.cancel(intervalPromise);
               $scope.reloadItineraireClassique();
               intervalPromise = $interval(function(){ $scope.reloadItineraireClassique(); }, 25000);
@@ -428,6 +444,8 @@ angular.module('starter.controllers', [])
           console.log("There was an error in elasticsearch request response : ", response);
         });
 
+        $scope.button = 2;
+
         $scope.loading = $ionicLoading.show({
           showBackdrop: false,
           template: "Recalcul de l'itineraire..."
@@ -465,7 +483,7 @@ angular.module('starter.controllers', [])
     client.update({
       index: 'users',
       type: 'user',
-      id: '100', //profile.user_id
+      id: 'google-oauth2|101046949406679467409', //profile.user_id
       body: {
         doc: {
           role: 'visiteur',
@@ -500,6 +518,50 @@ angular.module('starter.controllers', [])
     $location.path('/');
   };
 
+  $scope.annuler = function(){
+    $interval.cancel(intervalPromise);
+
+    $scope.button=1;
+    $scope.reloadItineraireClassique();
+    intervalPromise = $interval(function(){ $scope.reloadItineraireClassique(); }, 25000);
+
+    client.update({
+      index: 'matchs',
+      type: 'match',
+      id: match._id,
+      body: {
+        doc: {
+          etat: -1
+        }
+      }
+    }, function (error, response) {
+      console.log("There was an error in elasticsearch request error : ", error);
+      console.log("There was an error in elasticsearch request response : ", response);
+    });  
+  };
+
+  $scope.reprise = function(){
+    $interval.cancel(intervalPromise);
+
+    $scope.button=1;
+    $scope.reloadItineraireClassique();
+    intervalPromise = $interval(function(){ $scope.reloadItineraireClassique(); }, 25000);
+
+    client.update({
+      index: 'matchs',
+      type: 'match',
+      id: match._id,
+      body: {
+        doc: {
+          etat: 3
+        }
+      }
+    }, function (error, response) {
+      console.log("There was an error in elasticsearch request error : ", error);
+      console.log("There was an error in elasticsearch request response : ", response);
+    });
+  };
+
   // MAUVAIS LE RELOAD? IL RECHARGE LE CALCITINERAIRE MAIS SI ON EST EN TRAIN DE CHERCHER UN AUTO STOPPEUR ON VA PERDRE NOTRE ITINERAIRE 
   //intervalPromise = $interval(function(){ $scope.reload(); }, 100000);
 })
@@ -530,7 +592,7 @@ angular.module('starter.controllers', [])
     client.update({
       index: 'users',
       type: 'user',
-      id: '100', //profile.user_id
+      id: 'google-oauth2|101046949406679467409', //profile.user_id
       body: {
         doc: {
           role: 'autostoppeur',
@@ -550,7 +612,7 @@ angular.module('starter.controllers', [])
     client.update({
       index: 'users',
       type: 'user',
-      id: '100', //profile.user_id
+      id: 'google-oauth2|101046949406679467409', //profile.user_id
       body: {
         doc: {
           destination : {
@@ -565,7 +627,7 @@ angular.module('starter.controllers', [])
       client.get({
         index: 'users',
         type: 'user',
-        id: /*profile.user_id,*/ '100',
+        id: /*profile.user_id,*/ 'google-oauth2|101046949406679467409',
       }, function (error, response) {
         console.log("There was an error in elasticsearch request error : ", error);
         console.log("There was an error in elasticsearch request response : ", response);
@@ -800,7 +862,7 @@ angular.module('starter.controllers', [])
           type: 'match',
           body: {
             conducteur: conducteur._id,
-            autostoppeur: '100', //profile.user_id,
+            autostoppeur: 'google-oauth2|101046949406679467409', //profile.user_id,
             nom: user._source.nom,
             distance: parseFloat(dist.toFixed(0)),
             distanceTotale: parseFloat(distTotal.toFixed(0)),
@@ -841,7 +903,7 @@ angular.module('starter.controllers', [])
           type: 'match',
           body: {
             conducteur: conducteur._id,
-            autostoppeur: '100', //profile.user_id,
+            autostoppeur: 'google-oauth2|101046949406679467409', //profile.user_id,
             nom: user._source.nom,
             distance: parseFloat(dist.toFixed(0)),
             distanceTotale: parseFloat(distTotal.toFixed(0)),
@@ -923,7 +985,7 @@ angular.module('starter.controllers', [])
     client.update({
       index: 'users',
       type: 'user',
-      id: '100', //profile.user_id
+      id: 'google-oauth2|101046949406679467409', //profile.user_id
       body: {
         doc: {
           role: 'visiteur',
@@ -989,7 +1051,7 @@ angular.module('starter.controllers', [])
     client.index({
       index: 'users',
       type: 'user',
-      id: /*profile.user_id*/ '100',
+      id: /*profile.user_id*/ 'google-oauth2|101046949406679467409',
       body: {
         nom: user.nom,
         mail: /*profile.email,*/ "jules.vanneste@gmail.com",
