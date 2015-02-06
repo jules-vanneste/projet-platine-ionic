@@ -159,8 +159,11 @@ angular.module('starter.controllers', [])
 
     var mapOptions = {
       center: myLatlng,
-      zoom: 16,
-      mapTypeId: google.maps.MapTypeId.ROADMAP
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      streetViewControl: false,
+      panControl: false,
+      maxZoom: 18,
+      minZoom: 5
     };
     var map = new google.maps.Map(document.getElementById("map"), mapOptions);
 
@@ -201,7 +204,8 @@ angular.module('starter.controllers', [])
       $scope.directionsService.route(request, function(result, status) {
         if (status == google.maps.DirectionsStatus.OK) {
           $scope.directionsDisplay.setDirections(result);
-                $ionicLoading.hide();
+          $scope.map.zoom = 5;
+          $ionicLoading.hide();
         }
       });
     }, function(error) {
@@ -299,6 +303,7 @@ angular.module('starter.controllers', [])
         }
         switch(match._source.etat){
           case 0:
+            $scope.button = 1;
             console.log(" case 0"," case 0");
             $scope.loading = $ionicLoading.show({
               showBackdrop: false,
@@ -324,7 +329,7 @@ angular.module('starter.controllers', [])
             if(etat != 1){
               $scope.getAutostoppeur();
               $interval.cancel(intervalPromise);
-              $scope.showConfirm("Un auto-stoppeur a été trouvé se trouvant à " + match._source.distance + "m de votre position. Souhaitez-vous le prendre en charge ?");
+              $scope.showConfirm("Auto-stoppeur à proximité", match._source.nom + " recherche un véhicule. Cet auto-stoppeur se trouve à " + match._source.distance + "m de votre position. Souhaitez-vous le prendre en charge ?");
               etat = 1;
             }
             break;
@@ -453,7 +458,9 @@ angular.module('starter.controllers', [])
         
         etat = 1;
         $interval.cancel(intervalPromise);
-        $scope.reloadItineraireDetour();
+        $timeout(function() {
+          $scope.reloadItineraireDetour();
+        }, 5000);          
         intervalPromise = $interval(function(){ $scope.reloadItineraireDetour();}, 25000);
       }
       else{
@@ -504,19 +511,31 @@ angular.module('starter.controllers', [])
       console.log("There was an error in elasticsearch request error : ", error);
       console.log("There was an error in elasticsearch request response : ", response);
     });
-    client.update({
-      index: 'matchs',
-      type: 'match',
-      id: match._id,
-      body: {
-        doc: {
-          etat: -1
+    if(match._source.etat == 0){
+      client.delete({
+        index: 'matchs',
+        type: 'match',
+        id: match._id
+      }, function (error, response) {
+        console.log("There was an error in elasticsearch request error : ", error);
+        console.log("There was an error in elasticsearch request response : ", response);
+      });
+    }
+    else{
+      client.update({
+        index: 'matchs',
+        type: 'match',
+        id: match._id,
+        body: {
+          doc: {
+            etat: -1
+          }
         }
-      }
-    }, function (error, response) {
-      console.log("There was an error in elasticsearch request error : ", error);
-      console.log("There was an error in elasticsearch request response : ", response);
-    });
+      }, function (error, response) {
+        console.log("There was an error in elasticsearch request error : ", error);
+        console.log("There was an error in elasticsearch request response : ", response);
+      });
+    }
     $location.path('/');
   };
 
