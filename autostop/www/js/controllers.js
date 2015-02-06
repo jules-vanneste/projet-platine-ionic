@@ -74,7 +74,7 @@ angular.module('starter.controllers', [])
   client.get({
     index: 'users',
     type: 'user',
-    id: /*profile.user_id,*/ '100',
+    id: /*profile.user_id,*/ 'google-oauth2|101046949406679467409',
   }, function (error, response) {
     console.log("There was an error in elasticsearch request error : ", error);
     console.log("There was an error in elasticsearch request response : ", response);
@@ -228,7 +228,7 @@ angular.module('starter.controllers', [])
     client.update({
       index: 'users',
       type: 'user',
-      id: '100', //profile.user_id
+      id: 'google-oauth2|101046949406679467409', //profile.user_id
       body: {
         doc: {
           role: 'conducteur',
@@ -249,7 +249,7 @@ angular.module('starter.controllers', [])
     client.update({
       index: 'users',
       type: 'user',
-      id: '100', //profile.user_id
+      id: 'google-oauth2|101046949406679467409', //profile.user_id
       body: {
         doc: {
           destination : {
@@ -264,7 +264,7 @@ angular.module('starter.controllers', [])
       client.get({
         index: 'users',
         type: 'user',
-        id: /*profile.user_id,*/ '100',
+        id: /*profile.user_id,*/ 'google-oauth2|101046949406679467409',
       }, function (error, response) {
         console.log("There was an error in elasticsearch request error : ", error);
         console.log("There was an error in elasticsearch request response : ", response);
@@ -485,7 +485,7 @@ angular.module('starter.controllers', [])
     client.update({
       index: 'users',
       type: 'user',
-      id: '100', //profile.user_id
+      id: 'google-oauth2|101046949406679467409', //profile.user_id
       body: {
         doc: {
           role: 'visiteur',
@@ -632,7 +632,7 @@ angular.module('starter.controllers', [])
     client.update({
       index: 'users',
       type: 'user',
-      id: '100', //profile.user_id
+      id: 'google-oauth2|101046949406679467409', //profile.user_id
       body: {
         doc: {
           role: 'autostoppeur',
@@ -653,7 +653,7 @@ angular.module('starter.controllers', [])
     client.update({
       index: 'users',
       type: 'user',
-      id: '100', //profile.user_id
+      id: 'google-oauth2|101046949406679467409', //profile.user_id
       body: {
         doc: {
           destination : {
@@ -668,7 +668,7 @@ angular.module('starter.controllers', [])
       client.get({
         index: 'users',
         type: 'user',
-        id: /*profile.user_id,*/ '100',
+        id: /*profile.user_id,*/ 'google-oauth2|101046949406679467409',
       }, function (error, response) {
         console.log("There was an error in elasticsearch request error : ", error);
         console.log("There was an error in elasticsearch request response : ", response);
@@ -916,7 +916,7 @@ angular.module('starter.controllers', [])
           type: 'match',
           body: {
             conducteur: conducteur._id,
-            autostoppeur: '100', //profile.user_id,
+            autostoppeur: 'google-oauth2|101046949406679467409', //profile.user_id,
             nom: user._source.nom,
             distance: parseFloat(dist.toFixed(0)),
             distanceTotale: parseFloat(distTotal.toFixed(0)),
@@ -959,7 +959,7 @@ angular.module('starter.controllers', [])
           type: 'match',
           body: {
             conducteur: conducteur._id,
-            autostoppeur: '100', //profile.user_id,
+            autostoppeur: 'google-oauth2|101046949406679467409', //profile.user_id,
             nom: user._source.nom,
             distance: parseFloat(dist.toFixed(0)),
             distanceTotale: parseFloat(distTotal.toFixed(0)),
@@ -1080,7 +1080,7 @@ angular.module('starter.controllers', [])
     client.update({
       index: 'users',
       type: 'user',
-      id: '100', //profile.user_id
+      id: 'google-oauth2|101046949406679467409', //profile.user_id
       body: {
         doc: {
           role: 'visiteur',
@@ -1109,7 +1109,7 @@ angular.module('starter.controllers', [])
     client.update({
       index: 'users',
       type: 'user',
-      id: '100', //profile.user_id
+      id: 'google-oauth2|101046949406679467409', //profile.user_id
       body: {
         doc: {
           role: 'visiteur',
@@ -1174,7 +1174,7 @@ angular.module('starter.controllers', [])
     client.index({
       index: 'users',
       type: 'user',
-      id: /*profile.user_id*/ '100',
+      id: /*profile.user_id*/ 'google-oauth2|101046949406679467409',
       body: {
         nom: user.nom,
         mail: /*profile.email,*/ "jules.vanneste@gmail.com",
