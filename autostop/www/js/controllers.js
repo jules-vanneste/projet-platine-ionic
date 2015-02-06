@@ -481,6 +481,7 @@ angular.module('starter.controllers', [])
   }
 
   $scope.exit = function(){
+    $ionicLoading.hide();
     $interval.cancel(intervalPromise);
     client.update({
       index: 'users',
@@ -520,6 +521,7 @@ angular.module('starter.controllers', [])
   };
 
   $scope.terminer = function(){
+    $ionicLoading.hide();
     $interval.cancel(intervalPromise);
     client.update({
       index: 'users',
@@ -1075,6 +1077,7 @@ angular.module('starter.controllers', [])
 
   $scope.terminer = function(){
     console.log("Recherche > exit", "On quitte la navigation");
+    $ionicLoading.hide();
     //TODO SI exit Supprimer le match + mise à jour du match à 0
 
     client.update({
@@ -1106,6 +1109,7 @@ angular.module('starter.controllers', [])
     console.log("Recherche > exit", "On quitte la navigation");
     //TODO SI exit Supprimer le match + mise à jour du match à 0
 
+    $ionicLoading.hide();
     client.update({
       index: 'users',
       type: 'user',
