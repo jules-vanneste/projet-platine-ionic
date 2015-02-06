@@ -74,7 +74,7 @@ angular.module('starter.controllers', [])
   client.get({
     index: 'users',
     type: 'user',
-    id: /*profile.user_id,*/ 'google-oauth2|101046949406679467409',
+    id: /*profile.user_id,*/ '100',
   }, function (error, response) {
     console.log("There was an error in elasticsearch request error : ", error);
     console.log("There was an error in elasticsearch request response : ", response);
@@ -227,7 +227,7 @@ angular.module('starter.controllers', [])
     client.update({
       index: 'users',
       type: 'user',
-      id: 'google-oauth2|101046949406679467409', //profile.user_id
+      id: '100', //profile.user_id
       body: {
         doc: {
           role: 'conducteur',
@@ -248,7 +248,7 @@ angular.module('starter.controllers', [])
     client.update({
       index: 'users',
       type: 'user',
-      id: 'google-oauth2|101046949406679467409', //profile.user_id
+      id: '100', //profile.user_id
       body: {
         doc: {
           destination : {
@@ -263,7 +263,7 @@ angular.module('starter.controllers', [])
       client.get({
         index: 'users',
         type: 'user',
-        id: /*profile.user_id,*/ 'google-oauth2|101046949406679467409',
+        id: /*profile.user_id,*/ '100',
       }, function (error, response) {
         console.log("There was an error in elasticsearch request error : ", error);
         console.log("There was an error in elasticsearch request response : ", response);
@@ -302,7 +302,7 @@ angular.module('starter.controllers', [])
             console.log(" case 0"," case 0");
             $scope.loading = $ionicLoading.show({
               showBackdrop: false,
-              template: "Erreur lors de la prise en charge..."
+              template: "L'autostoppeur a quitté la session..."
             });
             client.delete({
               index: 'matchs',
@@ -312,8 +312,11 @@ angular.module('starter.controllers', [])
               console.log("There was an error in elasticsearch request error : ", error2);
               console.log("There was an error in elasticsearch request response : ", response2);
             });
+            etat = 0;
             $interval.cancel(intervalPromise);
-            $scope.reloadItineraireClassique();
+            $timeout(function() {
+              $scope.reloadItineraireClassique();
+             }, 5000);
             intervalPromise = $interval(function(){ $scope.reloadItineraireClassique(); }, 25000);
             break;
           case 1:
@@ -345,8 +348,7 @@ angular.module('starter.controllers', [])
             }, 5000);
 
             etat = 2;
-            break;
-            
+            break;    
           case 3:
             console.log("case 3","case 3");
             // Poursuite du trajet calcul du nouveau itineraire + enlever une place
@@ -368,7 +370,6 @@ angular.module('starter.controllers', [])
                 parseFloat($stateParams.longitude),
                 "M"
               );
-
               if(dist < 500.00){
                 $interval.cancel(intervalPromise);
                 $ionicNavBarDelegate.showBar(false);
@@ -420,12 +421,12 @@ angular.module('starter.controllers', [])
   }
 
   $scope.showConfirm = function(title, question) {
-     var confirmPopup = $ionicPopup.confirm({
-       title: title,
-       template: question,
-       cancelText: 'Non',
-       okText: 'Oui',
-       okType: 'button-balanced'
+    var confirmPopup = $ionicPopup.confirm({
+      title: title,
+      template: question,
+      cancelText: 'Non',
+      okText: 'Oui',
+      okType: 'button-balanced'
     });
     confirmPopup.then(function(res) {
     if(res) {
@@ -484,7 +485,7 @@ angular.module('starter.controllers', [])
     client.update({
       index: 'users',
       type: 'user',
-      id: 'google-oauth2|101046949406679467409', //profile.user_id
+      id: '100', //profile.user_id
       body: {
         doc: {
           role: 'visiteur',
@@ -596,7 +597,7 @@ angular.module('starter.controllers', [])
     client.update({
       index: 'users',
       type: 'user',
-      id: 'google-oauth2|101046949406679467409', //profile.user_id
+      id: '100', //profile.user_id
       body: {
         doc: {
           role: 'autostoppeur',
@@ -617,7 +618,7 @@ angular.module('starter.controllers', [])
     client.update({
       index: 'users',
       type: 'user',
-      id: 'google-oauth2|101046949406679467409', //profile.user_id
+      id: '100', //profile.user_id
       body: {
         doc: {
           destination : {
@@ -632,7 +633,7 @@ angular.module('starter.controllers', [])
       client.get({
         index: 'users',
         type: 'user',
-        id: /*profile.user_id,*/ 'google-oauth2|101046949406679467409',
+        id: /*profile.user_id,*/ '100',
       }, function (error, response) {
         console.log("There was an error in elasticsearch request error : ", error);
         console.log("There was an error in elasticsearch request response : ", response);
@@ -759,7 +760,7 @@ angular.module('starter.controllers', [])
         console.log("ligne 698", "Il y a au moins un match pour l'autostoppeur");
         match = response.hits.hits[0];
         for(var i=1; i<response.hits.total; i++){
-          if(response.hits.hits[i].etat==1 || response.hits.hits[i].etat==2){
+          if(response.hits.hits[i]._source.etat==1 || response.hits.hits[i]._source.etat==2){
             match = response.hits.hits[i];
           }
         }
@@ -773,13 +774,12 @@ angular.module('starter.controllers', [])
               showBackdrop: false,
               template: 'Recherche de véhicules en cours...'
             });
-          case -1:
             break;
-          case 0:
+          case -1:
             $interval.cancel(intervalPromise);
             $scope.loading = $ionicLoading.show({
               showBackdrop: false,
-              template: "Erreur lors de la prise en charge..."
+              template: "Le conducteur a quitté la session..."
             });
             client.delete({
               index: 'matchs',
@@ -789,8 +789,13 @@ angular.module('starter.controllers', [])
               console.log("There was an error in elasticsearch request error : ", error);
               console.log("There was an error in elasticsearch request response : ", response);
             });
-            $scope.searchConducteur();  
+            etat = 0;
+            $timeout(function() {
+              $scope.searchConducteur();  
+            }, 5000);
             intervalPromise = $interval(function(){ $scope.searchConducteur(); }, 25000);
+            break;
+          case 0:
             break;
           case 1:
             if(etat!=1){
@@ -822,6 +827,9 @@ angular.module('starter.controllers', [])
                 $scope.showConfirmPris("Véhicule tout proche de votre position","Avez-vous été pris en charge par le conducteur ?");
               }
             }
+            break;
+          case 3:
+            $scope.resume();
             break;
           default:
             break;
@@ -873,7 +881,7 @@ angular.module('starter.controllers', [])
           type: 'match',
           body: {
             conducteur: conducteur._id,
-            autostoppeur: 'google-oauth2|101046949406679467409', //profile.user_id,
+            autostoppeur: '100', //profile.user_id,
             nom: user._source.nom,
             distance: parseFloat(dist.toFixed(0)),
             distanceTotale: parseFloat(distTotal.toFixed(0)),
@@ -916,7 +924,7 @@ angular.module('starter.controllers', [])
           type: 'match',
           body: {
             conducteur: conducteur._id,
-            autostoppeur: 'google-oauth2|101046949406679467409', //profile.user_id,
+            autostoppeur: '100', //profile.user_id,
             nom: user._source.nom,
             distance: parseFloat(dist.toFixed(0)),
             distanceTotale: parseFloat(distTotal.toFixed(0)),
@@ -949,38 +957,7 @@ angular.module('starter.controllers', [])
     });
     confirmPopup.then(function(res) {
      if(res) {
-        console.log("Ligne 891", "L'autostoppeur confirme qu'il a été pris");
-        $scope.showMap = false;
-        $ionicNavBarDelegate.showBar(false);
-
-        var dist = distance(
-          conducteur._source.location.lat,
-          conducteur._source.location.lon,
-          user._source.location.lat,
-          user._source.location.lon,
-          "M"
-        );
-
-        client.update({
-          index: 'matchs',
-          type: 'match',
-          id: match._id,
-          body: {
-            doc: {
-              distance: dist,
-              etat: 3
-            }
-          }
-        }, function (error, response) {
-          console.log("There was an error in elasticsearch request error : ", error);
-          console.log("There was an error in elasticsearch request response : ", response);
-        });
-
-        $interval.cancel(intervalPromise);
-        $scope.showMap = false;
-        $scope.participationDemandee=conducteur._source.participationDemandee.toFixed(2);
-        $scope.distanceTotale=match._source.distanceTotale.toFixed(0);
-        $scope.cout=match._source.cout.toFixed(2);
+        $scope.resume();
       }
       else{
         console.log("Ligne 925", "L'autostoppeur dit qu'il n'a pas été pris");
@@ -994,6 +971,102 @@ angular.module('starter.controllers', [])
    });
   }
 
+  $scope.resume = function(){
+    console.log("Ligne 976", "L'autostoppeur confirme qu'il a été pris");
+    $ionicLoading.hide();
+    $scope.showMap = false;
+    $ionicNavBarDelegate.showBar(false);
+
+    var dist = distance(
+      conducteur._source.location.lat,
+      conducteur._source.location.lon,
+      user._source.location.lat,
+      user._source.location.lon,
+      "M"
+    );
+
+    client.update({
+      index: 'matchs',
+      type: 'match',
+      id: match._id,
+      body: {
+        doc: {
+          distance: dist,
+          etat: 3
+        }
+      }
+    }, function (error, response) {
+      console.log("There was an error in elasticsearch request error : ", error);
+      console.log("There was an error in elasticsearch request response : ", response);
+    });
+
+    client.search({
+      index: "matchs",
+      body: {
+        query : {
+          match : {
+             autostoppeur: user._id
+          }
+        }
+      }
+    }, function (error, response) {
+      console.log("There was an error in elasticsearch request error : ", error);
+      console.log("There was an error in elasticsearch request response : ", response);
+      matchs = response.hits;
+      if(response.hits.total>0){
+        console.log("ligne 999", "On va supprimer les matchs en etat -2");
+        for(var i=0; i<response.hits.total; i++){
+          if(response.hits.hits[i]._source.etat==-2){
+            console.log("ligne 1019", response.hits.hits[i]._id + " supprimé")
+            client.delete({
+              index: 'matchs',
+              type: 'match',
+              id: response.hits.hits[i]._id
+            }, function (error2, response2) {
+              console.log("There was an error in elasticsearch request error : ", error2);
+              console.log("There was an error in elasticsearch request response : ", response2);
+            });
+          }
+        }
+      }
+    });
+
+    $interval.cancel(intervalPromise);
+    $scope.showMap = false;
+    $scope.participationDemandee=conducteur._source.participationDemandee.toFixed(2);
+    $scope.distanceTotale=match._source.distanceTotale.toFixed(0);
+    $scope.cout=match._source.cout.toFixed(2);
+  }
+
+  $scope.terminer = function(){
+    console.log("Recherche > exit", "On quitte la navigation");
+    //TODO SI exit Supprimer le match + mise à jour du match à 0
+
+    client.update({
+      index: 'users',
+      type: 'user',
+      id: '100', //profile.user_id
+      body: {
+        doc: {
+          role: 'visiteur',
+          location : {
+            lat: 0.0,
+            lon: 0.0
+          },
+          destination : {
+            lat: 0.0,
+            lon: 0.0
+          }
+        }
+      }
+    }, function (error, response) {
+      console.log("There was an error in elasticsearch request error : ", error);
+      console.log("There was an error in elasticsearch request response : ", response);
+    });
+    $interval.cancel(intervalPromise);
+    $location.path('/');
+  };
+
   $scope.exit = function(){
     console.log("Recherche > exit", "On quitte la navigation");
     //TODO SI exit Supprimer le match + mise à jour du match à 0
@@ -1001,7 +1074,7 @@ angular.module('starter.controllers', [])
     client.update({
       index: 'users',
       type: 'user',
-      id: 'google-oauth2|101046949406679467409', //profile.user_id
+      id: '100', //profile.user_id
       body: {
         doc: {
           role: 'visiteur',
@@ -1066,7 +1139,7 @@ angular.module('starter.controllers', [])
     client.index({
       index: 'users',
       type: 'user',
-      id: /*profile.user_id*/ 'google-oauth2|101046949406679467409',
+      id: /*profile.user_id*/ '100',
       body: {
         nom: user.nom,
         mail: /*profile.email,*/ "jules.vanneste@gmail.com",
