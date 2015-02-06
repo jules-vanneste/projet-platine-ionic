@@ -189,7 +189,7 @@ angular.module('starter.controllers', [])
       latitude = pos.coords.latitude;
       longitude = pos.coords.longitude;
       $scope.map.setCenter(new google.maps.LatLng(latitude, longitude));
-      $ionicLoading.hide();
+
 
       console.log("calcRoute","calcRoute");
       var start = "" + latitude + ", " + longitude + "";
@@ -202,6 +202,7 @@ angular.module('starter.controllers', [])
       $scope.directionsService.route(request, function(result, status) {
         if (status == google.maps.DirectionsStatus.OK) {
           $scope.directionsDisplay.setDirections(result);
+                $ionicLoading.hide();
         }
       });
     }, function(error) {
@@ -291,10 +292,9 @@ angular.module('starter.controllers', [])
       console.log("There was an error in elasticsearch request error : ", error);
       console.log("There was an error in elasticsearch request response : ", response);
       if(response.hits.total>0){
-        $ionicLoading.hide();
         match = response.hits.hits[0];
         for(var i=1; i<response.hits.total; i++){
-          if(response.hits.hits[i].etat==1 || response.hits.hits[i].etat==2){
+          if(response.hits.hits[i]._source.etat==1 || response.hits.hits[i]._source.etat==2){
             match = response.hits.hits[i];
           }  
         }
@@ -386,7 +386,7 @@ angular.module('starter.controllers', [])
                 client.delete({
                   index: 'matchs',
                   type: 'match',
-                  //id: match._id
+                  id: match._id
                 }, function (error, response) {
                   console.log("There was an error in elasticsearch request error : ", error);
                   console.log("There was an error in elasticsearch request response : ", response);
@@ -495,7 +495,6 @@ angular.module('starter.controllers', [])
             lat: 0.0,
             lon: 0.0
           },
-          match: 0
         }
       }
     }, function (error, response) {
@@ -518,11 +517,40 @@ angular.module('starter.controllers', [])
     $location.path('/');
   };
 
+  $scope.terminer = function(){
+    $interval.cancel(intervalPromise);
+    client.update({
+      index: 'users',
+      type: 'user',
+      id: 'google-oauth2|101046949406679467409', //profile.user_id
+      body: {
+        doc: {
+          role: 'visiteur',
+          location : {
+            lat: 0.0,
+            lon: 0.0
+          },
+          destination : {
+            lat: 0.0,
+            lon: 0.0
+          },
+        }
+      }
+    }, function (error, response) {
+      console.log("There was an error in elasticsearch request error : ", error);
+      console.log("There was an error in elasticsearch request response : ", response);
+    });
+    $location.path('/');
+  };
+
+
   $scope.annuler = function(){
     $interval.cancel(intervalPromise);
 
     $scope.button=1;
-    $scope.reloadItineraireClassique();
+    $timeout(function() {
+      $scope.reloadItineraireClassique();
+    }, 5000);  
     intervalPromise = $interval(function(){ $scope.reloadItineraireClassique(); }, 25000);
 
     client.update({
@@ -543,8 +571,15 @@ angular.module('starter.controllers', [])
   $scope.reprise = function(){
     $interval.cancel(intervalPromise);
 
+    $scope.loading = $ionicLoading.show({
+      showBackdrop: false,
+      template: "Recalcul de l'itineraire..."
+    });
+
     $scope.button=1;
-    $scope.reloadItineraireClassique();
+    $timeout(function() {
+      $scope.reloadItineraireClassique();
+    }, 5000);  
     intervalPromise = $interval(function(){ $scope.reloadItineraireClassique(); }, 25000);
 
     client.update({
