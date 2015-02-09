@@ -635,6 +635,7 @@ angular.module('starter.controllers', [])
     console.log("Recherche > Init", "On entre dans la fonction init");
     $scope.showMap = true;
     $scope.printCarInfo = false;
+    $scope.getCurrentPosition;
     $scope.setDestination();
     $scope.checkMatchAutostoppeur();
   };
