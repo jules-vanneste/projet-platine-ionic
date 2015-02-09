@@ -637,7 +637,9 @@ angular.module('starter.controllers', [])
     $scope.printCarInfo = false;
     $scope.getCurrentPosition;
     $scope.setDestination();
-    $scope.checkMatchAutostoppeur();
+    $timeout(function() {
+      $scope.checkMatchAutostoppeur();
+    }, 1000);
   };
 
   $scope.getCurrentPosition = function() {
