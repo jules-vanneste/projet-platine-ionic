@@ -21,3 +21,7 @@
 .block-white h4, .block-white h1{color: #6DB33F;}
 .block-white {background-color: white; color: #6DB33F;}
 .button.button-balanced {background-color: #6db33f;}
+.panecustom {background-color: #6db33f;}
+#buttonlightcustom {color: #6db33f;}
+.loading-container{z-index: auto;}
+.loading{z-index: 13;}
