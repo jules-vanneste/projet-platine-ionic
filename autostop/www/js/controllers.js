@@ -68,10 +68,6 @@ angular.module('starter.controllers', [])
     alertPopup.then(function(res) {});
   }
 
-  $scope.play = function() {
-  	play();
-  }
-
   var profile = store.get('profile');
   client.get({
     index: 'users',
