@@ -5,10 +5,8 @@ function ajouterOption(idSelect, valeur, geo) {
 	opt.value = geo;
 	document.getElementById(idSelect).appendChild(opt);
 }
-/*
-function deleteFirstOption(idSelect) {
+
+function deleteAllOptions(idSelect) {
 	var select = document.getElementById(idSelect);
-	console.log(select.firstChild)
-	select.removeChild(select.firstChild);
+	select.innerHTML = "";
 }
-*/

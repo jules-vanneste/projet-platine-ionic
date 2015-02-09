@@ -52,6 +52,8 @@ angular.module('starter.controllers', [])
     	console.log(data);
     	if(data) {
     		$scope.showAlert("Itinéraire sauvegardé", "Votre itinéraire a été sauvegardé");
+    		deleteAllOptions("favSelect");
+    		getAdresses("favSelect");
     	} else {
     		$scope.showAlert("Problème", "L'itinéraire n'a pu être sauvegardé. L'adresse est peut-être déjà existante");
     	}
@@ -330,6 +332,7 @@ angular.module('starter.controllers', [])
               $scope.getAutostoppeur();
               $interval.cancel(intervalPromise);
               $scope.showConfirm("Auto-stoppeur à proximité", match._source.nom + " recherche un véhicule. Cet auto-stoppeur se trouve à " + match._source.distance + "m de votre position. Souhaitez-vous le prendre en charge ?");
+              play("prendreAutoStoppeur.mp3");
               etat = 1;
             }
             break;
@@ -365,7 +368,8 @@ angular.module('starter.controllers', [])
               $interval.cancel(intervalPromise);
               $scope.reloadItineraireClassique();
               intervalPromise = $interval(function(){ $scope.reloadItineraireClassique(); }, 25000);
-              etat = 3;
+              etat = 3
+              play("newItineraire.mp3");
             }
             else{
               dist = distance(
