@@ -74,7 +74,7 @@ angular.module('starter.controllers', [])
   client.get({
     index: 'users',
     type: 'user',
-    id: /*profile.user_id,*/ 'google-oauth2|101046949406679467409',
+    id: /*profile.user_id,*/ '100',
   }, function (error, response) {
     console.log("There was an error in elasticsearch request error : ", error);
     console.log("There was an error in elasticsearch request response : ", response);
@@ -232,7 +232,7 @@ angular.module('starter.controllers', [])
     client.update({
       index: 'users',
       type: 'user',
-      id: 'google-oauth2|101046949406679467409', //profile.user_id
+      id: '100', //profile.user_id
       body: {
         doc: {
           role: 'conducteur',
@@ -253,7 +253,7 @@ angular.module('starter.controllers', [])
     client.update({
       index: 'users',
       type: 'user',
-      id: 'google-oauth2|101046949406679467409', //profile.user_id
+      id: '100', //profile.user_id
       body: {
         doc: {
           destination : {
@@ -268,7 +268,7 @@ angular.module('starter.controllers', [])
       client.get({
         index: 'users',
         type: 'user',
-        id: /*profile.user_id,*/ 'google-oauth2|101046949406679467409',
+        id: /*profile.user_id,*/ '100',
       }, function (error, response) {
         console.log("There was an error in elasticsearch request error : ", error);
         console.log("There was an error in elasticsearch request response : ", response);
@@ -493,7 +493,7 @@ angular.module('starter.controllers', [])
     client.update({
       index: 'users',
       type: 'user',
-      id: 'google-oauth2|101046949406679467409', //profile.user_id
+      id: '100', //profile.user_id
       body: {
         doc: {
           role: 'visiteur',
@@ -545,7 +545,7 @@ angular.module('starter.controllers', [])
     client.update({
       index: 'users',
       type: 'user',
-      id: 'google-oauth2|101046949406679467409', //profile.user_id
+      id: '100', //profile.user_id
       body: {
         doc: {
           role: 'visiteur',
@@ -657,7 +657,7 @@ angular.module('starter.controllers', [])
     client.update({
       index: 'users',
       type: 'user',
-      id: 'google-oauth2|101046949406679467409', //profile.user_id
+      id: '100', //profile.user_id
       body: {
         doc: {
           role: 'autostoppeur',
@@ -678,7 +678,7 @@ angular.module('starter.controllers', [])
     client.update({
       index: 'users',
       type: 'user',
-      id: 'google-oauth2|101046949406679467409', //profile.user_id
+      id: '100', //profile.user_id
       body: {
         doc: {
           destination : {
@@ -693,7 +693,7 @@ angular.module('starter.controllers', [])
       client.get({
         index: 'users',
         type: 'user',
-        id: /*profile.user_id,*/ 'google-oauth2|101046949406679467409',
+        id: /*profile.user_id,*/ '100',
       }, function (error, response) {
         console.log("There was an error in elasticsearch request error : ", error);
         console.log("There was an error in elasticsearch request response : ", response);
@@ -805,6 +805,13 @@ angular.module('starter.controllers', [])
           $interval.cancel(intervalPromise);
           conducteur = response.hits.hits[0];
           $scope.conducteur = conducteur;
+          var dist = distance(
+            conducteur._source.location.lat,
+            conducteur._source.location.lon,
+            user._source.location.lat,
+            user._source.location.lon,
+            "M"
+          );
           var texte = conducteur._source.nom + " est disponible à " + dist + "m, souhaitez-vous envoyer une demande de prise en charge à ce conducteur ?";
           $scope.showConfirm("Véhicule à proximité", texte);
         }
@@ -953,7 +960,7 @@ angular.module('starter.controllers', [])
           type: 'match',
           body: {
             conducteur: conducteur._id,
-            autostoppeur: 'google-oauth2|101046949406679467409', //profile.user_id,
+            autostoppeur: '100', //profile.user_id,
             nom: user._source.nom,
             distance: parseFloat(dist.toFixed(0)),
             distanceTotale: parseFloat(distTotal.toFixed(0)),
@@ -996,7 +1003,7 @@ angular.module('starter.controllers', [])
           type: 'match',
           body: {
             conducteur: conducteur._id,
-            autostoppeur: 'google-oauth2|101046949406679467409', //profile.user_id,
+            autostoppeur: '100', //profile.user_id,
             nom: user._source.nom,
             distance: parseFloat(dist.toFixed(0)),
             distanceTotale: parseFloat(distTotal.toFixed(0)),
@@ -1118,7 +1125,7 @@ angular.module('starter.controllers', [])
     client.update({
       index: 'users',
       type: 'user',
-      id: 'google-oauth2|101046949406679467409', //profile.user_id
+      id: '100', //profile.user_id
       body: {
         doc: {
           role: 'visiteur',
@@ -1148,7 +1155,7 @@ angular.module('starter.controllers', [])
     client.update({
       index: 'users',
       type: 'user',
-      id: 'google-oauth2|101046949406679467409', //profile.user_id
+      id: '100', //profile.user_id
       body: {
         doc: {
           role: 'visiteur',
@@ -1225,7 +1232,7 @@ angular.module('starter.controllers', [])
     client.index({
       index: 'users',
       type: 'user',
-      id: /*profile.user_id*/ 'google-oauth2|101046949406679467409',
+      id: /*profile.user_id*/ '100',
       body: {
         nom: user.nom,
         mail: /*profile.email,*/ "jules.vanneste@gmail.com",
