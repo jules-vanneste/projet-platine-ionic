@@ -1,28 +1,13 @@
-ion.sound({
-    sounds: [
-        {
-            name: "button_click",
-            volume: 1.0
-        },
-        {
-            name: "notify_sound",
-            volume: 1.0
-        },
-        {
-            name: "beer_can_opening"
-        },
-        {
-            name: "alert_sound",
-            volume: 1.0,
-            preload: false
-        }
-    ],
-    volume: 0.5,
-    path: "sounds/",
-    preload: true
-});
+function getPhoneGapPath() {
+    if(device.platform.toLowerCase() === "android") {
+        return "/android_asset/www/sounds/"
+    } else if (device.platform.toLowerCase() === "") {
+        
+    }
+    return "/sounds/"
+};
 
 function play() {
-    console.log('play called');
-    ion.sound.play("beer_can_opening");
+    var snd = new Media(getPhoneGapPath()+"beer_can_opening.mp3");
+    snd.play();
 }
