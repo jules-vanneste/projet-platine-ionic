@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
 
-angular.module('starter', ['ionic', 'starter.controllers', 'ion-google-place', 'auth0', 'angular-storage', 'angular-jwt', 'elasticsearch'])
+angular.module('starter', ['ionic', 'AppController', 'LoginController', 'AccueilController', 'ItineraireController', 'RechercheController', 'ProfilController', 'FavorisController', 'ion-google-place', 'auth0', 'angular-storage', 'angular-jwt', 'elasticsearch'])
 
 .service('client', function (esFactory) {
   return esFactory({
