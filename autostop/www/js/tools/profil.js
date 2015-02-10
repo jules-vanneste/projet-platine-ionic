@@ -1,4 +1,4 @@
-/** permet d'afficher dans le profil les informations de l'utilisateur **/
+// permet d'afficher dans le profil les informations de l'utilisateur **/
 function ajouterOption(idSelect, valeur, geo) {
 	var opt = document.createElement("option");
 	opt.innerHTML = valeur;

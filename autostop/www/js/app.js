@@ -1,5 +1,5 @@
 // Declaration des modules, services et controllers de l'application
-angular.module('starter', ['ionic', 'AppController', 'LoginController', 'AccueilController', 'ItineraireController', 'RechercheController', 'ProfilController', 'FavorisController', 'ion-google-place', 'auth0', 'angular-storage', 'angular-jwt', 'elasticsearch'])
+angular.module('starter', ['ionic', 'AppController', 'LoginController', 'AccueilController', 'ItineraireController', 'RechercheController', 'ProfilController', 'ion-google-place', 'auth0', 'angular-storage', 'angular-jwt', 'elasticsearch'])
 
 // Declaration du VPS pour elasticsearch
 .service('client', function (esFactory) {
@@ -37,30 +37,26 @@ angular.module('starter', ['ionic', 'AppController', 'LoginController', 'Accueil
     });
 })
 
-
+// Hook auth0-angular to all the events it needs to listen to
 .run(function(auth) {
-  // Hook auth0-angular to all the events it needs to listen to
   auth.hookEvents();
 })
 
+// Customization the accessory bar
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
-    // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
-    // for form inputs)
     if(window.cordova && window.cordova.plugins.Keyboard) {
       cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
     }
     if(window.StatusBar) {
-      // org.apache.cordova.statusbar required
-      //StatusBar.styleDefault();
       StatusBar.styleColor('white');
     }
   });
 })
 
+// Routage Controller & Vue
 .config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
-
     .state('app', {
       url: "/app",
       abstract: true,
@@ -71,13 +67,11 @@ angular.module('starter', ['ionic', 'AppController', 'LoginController', 'Accueil
       }
     })
 
-    /* Ajout pour OAuth */
     .state('login', {
       url: '/login',
       templateUrl: 'templates/login.html',
       controller: 'LoginCtrl',
     })
-    /* Fin Ajout pour OAuth */
 
     .state('app.accueil', {
       url: "/accueil",
@@ -115,16 +109,6 @@ angular.module('starter', ['ionic', 'AppController', 'LoginController', 'Accueil
         'menuContent' :{
           templateUrl: "templates/profil.html",
           controller: 'ProfilCtrl'
-        }
-      }
-    })
-
-    .state('app.favoris', {
-      url: "/favoris",
-      views: {
-        'menuContent' :{
-          templateUrl: "templates/favoris.html",
-          controller: 'FavorisCtrl'
         }
       }
     })

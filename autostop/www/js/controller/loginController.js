@@ -2,8 +2,7 @@ angular.module('LoginController', [])
   .controller('LoginCtrl', function($scope, auth, $state, store, client) {
     auth.signin({
       authParams: {
-        // This asks for the refresh token
-        // So that the user never has to log in again
+        // This asks for the refresh token So that the user never has to log in again
         scope: 'openid offline_access',
         // This is the device name
         device: 'Mobile device'
@@ -11,8 +10,7 @@ angular.module('LoginController', [])
       // Make the widget non closeable
       standalone: true
     }, function(profile, token, accessToken, state, refreshToken) {
-            // Login was successful
-      // We need to save the information from the login
+      // Login was successful We need to save the information from the login
       store.set('profile', profile);
       store.set('token', token);
       store.set('refreshToken', refreshToken);

@@ -1,3 +1,10 @@
+// Lancement du son
+function play(name) {
+    var snd = new Media(getPhoneGapPath()+name);
+    snd.play();
+}
+
+// Reconnaissance de l'appareil pour former le chemin du son
 function getPhoneGapPath() {
     if(device.platform.toLowerCase() === "android") {
         return "/android_asset/www/sounds/"
@@ -10,9 +17,3 @@ function getPhoneGapPath() {
     }
     return "/sounds/"
 };
-
-/* name avec extension */
-function play(name) {
-    var snd = new Media(getPhoneGapPath()+name);
-    snd.play();
-}

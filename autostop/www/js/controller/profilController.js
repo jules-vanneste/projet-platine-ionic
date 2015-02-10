@@ -1,14 +1,16 @@
-
 angular.module('ProfilController', [])
   .controller('ProfilCtrl', function($scope, $stateParams, $ionicPopup, store, client) {
+    // Recuperation du profil et des données de l'utilisateur
     $scope.user = store.get('user')._source;
     $scope.profile = store.get('profile');
+
     $scope.printConductor = true;
 
     $scope.printOther = function(){
       $scope.printConductor = !$scope.printConductor;
     }
 
+    // Mise à jour des données l'utilisateur
     $scope.update = function(user, profile){
       client.index({
         index: 'users',
@@ -43,6 +45,7 @@ angular.module('ProfilController', [])
       });
     }
 
+    // Boite d'information s'affichant suite à l'enregistrement des données de l'utilisateur
     $scope.showAlert = function() {
       var alertPopup = $ionicPopup.alert({
         title: 'Configuration Sauvegardé',

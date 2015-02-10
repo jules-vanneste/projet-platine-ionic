@@ -1,25 +1,28 @@
-
 angular.module('RechercheController', [])
   .controller('RechercheCtrl', function($scope, $ionicLoading, $ionicNavBarDelegate, $ionicPopup, $compile, $stateParams, $timeout, $interval, $location, store, client) {
     var latitude, longitude, profile, user, conducteur, intervalPromise, matchs, match, etat=0;
+    
+    $scope.hideBackButton = true;
 
+    // Recuperation du profil et des données de l'utilisateur 
     profile = store.get('profile');
     user = store.get('user');
-    $scope.hideBackButton = true;
     
+    // Fonction appelée lors du chargement de la vue
     $scope.init = function() {
-      console.log("Recherche > Init", "On entre dans la fonction init");
+      console.log("rechercheController", "getCurrentPosition");
       $scope.showMap = true;
       $scope.printCarInfo = false;
-      $scope.getCurrentPosition;
-      $scope.setDestination();
+      $scope.getCurrentPosition(); // Recupere la localisation de l'autostoppeur
+      $scope.setDestination(); // Mise à jour de la destination
       $timeout(function() {
-        $scope.checkMatchAutostoppeur();
+        $scope.checkMatchAutostoppeur(); // Check si un match de l'autostoppeur
       }, 1000);
     };
 
+    // Fonction appelée pour récupérer la position actuelle du conducteur
     $scope.getCurrentPosition = function() {
-      console.log("Recherche > getCurrentPosition", "On récupère la position de l'autostoppeur");
+      console.log("rechercheController", "getCurrentPosition");
       navigator.geolocation.getCurrentPosition(function(pos) {
         latitude = pos.coords.latitude;
         longitude = pos.coords.longitude;
@@ -28,8 +31,10 @@ angular.module('RechercheController', [])
       });
     };
 
+    // Fonction appelée pour mettre a jour la location du conducteur dans elasticsearch
     $scope.updatePosition = function(){
-      console.log("Recherche > updatePosition", "On met à jour la position de l'autostoppeur sur le serveur");
+      console.log("rechercheController", "updatePosition");
+      // Requete elasticsearch mettant à jour la localisation et le role de l'utilisateur
       client.update({
         index: 'users',
         type: 'user',
@@ -49,8 +54,24 @@ angular.module('RechercheController', [])
       });
     };
 
+    $scope.searchConducteur = function() {
+      console.log("Recherche > searchConducteur", "On cherche un conducteur");
+      $scope.getCurrentPosition();
+      $scope.updatePosition();
+      $scope.getConducteur();
+    };
+
+    $scope.checkMatchAutostoppeur = function() {
+      console.log("Recherche > checkMatchAutostoppeur", "On check les matchs de l'autostoppeur");
+      $scope.getCurrentPosition();
+      $scope.updatePosition();
+      $scope.getMatchAutostoppeur();
+    };
+
+    // Fonction appelée pour mettre a jour la destination du conducteur
     $scope.setDestination = function(){
-      console.log("Recherche > setDestination", "On met à jour la destination de l'autostoppeur sur le serveur");
+      console.log("rechercheController", "setDestination");
+      // Requete elasticsearch mettant à jour la destination de l'utilisateur
       client.update({
         index: 'users',
         type: 'user',
@@ -66,6 +87,7 @@ angular.module('RechercheController', [])
       }, function (error, response) {
         console.log("There was an error in elasticsearch request error : ", error);
         console.log("There was an error in elasticsearch request response : ", response);
+        // Requete elasticsearch recuperant les données de l'utilisateur
         client.get({
           index: 'users',
           type: 'user',
@@ -73,17 +95,22 @@ angular.module('RechercheController', [])
         }, function (error, response) {
           console.log("There was an error in elasticsearch request error : ", error);
           console.log("There was an error in elasticsearch request response : ", response);
+          // Sauvegarde des données de l'utilisateur
           store.set('user',response);
         });
       });
     }
 
+    // Fonction appelée pour rechercher les conducteurs à proximité
     $scope.getConducteur = function(){
-      console.log("Recherche > getConducteur", "On regarde si un utilisateur correspond sur le serveur");
+      console.log("rechercheController", "getConducteur");
+      
       $scope.loading = $ionicLoading.show({
         showBackdrop: false,
         template: 'Recherche de véhicules en cours...'
       });
+
+      // Requete elasticsearch recherchant un conducteur avec les contraintes
       client.search({
         body: {
           query: {
@@ -136,11 +163,13 @@ angular.module('RechercheController', [])
         console.log("There was an error in elasticsearch request error : ", error);
         console.log("There was an error in elasticsearch request response : ", response);
         $ionicLoading.hide();
+        // Si un conducteur a été trouvé
         if(response.hits.total > 0){
           if(matchs != null && matchs.total > 0){
             conducteur = null;
             var i=0;
             var proposer = false;
+            // On cherche un conducteur à l'autostoppeur qui n'a pas encore été proposé 
             while(!proposer && i < response.hits.total){
               var j=0;
               var trouver = false;
@@ -150,12 +179,13 @@ angular.module('RechercheController', [])
                 }
                 j++;
               }
+              // Si un conducteur a été trouvé n'ayant pas de match
               if(!trouver){
-                console.log("ligne 656", "On a trouvé un utilisateur valide et on demande si on envoi une demande de prise en charge");
                 $interval.cancel(intervalPromise);
                 proposer = true;
                 conducteur = response.hits.hits[i];
                 $scope.conducteur = conducteur;
+
                 var dist = distance(
                   conducteur._source.location.lat,
                   conducteur._source.location.lon,
@@ -163,13 +193,15 @@ angular.module('RechercheController', [])
                   user._source.location.lon,
                   "M"
                 );
-                var texte = conducteur._source.nom + " est disponible à " + dist.toFixed(0) + "m, souhaitez-vous envoyer une demande de prise en charge à ce conducteur ?";
+                var texte = conducteur._source.nom + " est disponible à " + dist.toFixed(0) + "m, Souhaitez-vous envoyer une demande de prise en charge à ce conducteur ?";
+                
+                // On demande à l'autostoppeur si il souhaite envoyer une demande de prise en charge à ce conducteur
                 $scope.showConfirm("Véhicule à proximité", texte);
               }
               i++;
             }
+            // Si un nouveau conducteur a été trouvé, on l'indique à l'autostoppeur. On demande à l'autostoppeur si il souhaite envoyer une demande de prise en charge à ce conducteur
             if(!proposer){
-              console.log("ligne 665", "On a rien trouver on affiche 'Recherche de véhicules en cours...'");
               $scope.loading = $ionicLoading.show({
                 showBackdrop: false,
                 template: 'Recherche de véhicules en cours...'
@@ -177,7 +209,7 @@ angular.module('RechercheController', [])
             }
           }
           else{
-            console.log("ligne 673", "pas de match (matchs.total == 0)");
+            // Sinon pas de match, on propose le premier conducteur
             $interval.cancel(intervalPromise);
             conducteur = response.hits.hits[0];
             $scope.conducteur = conducteur;
@@ -188,15 +220,19 @@ angular.module('RechercheController', [])
               user._source.location.lon,
               "M"
             );
-            var texte = conducteur._source.nom + " est disponible à " + dist.toFixed(0) + "m, souhaitez-vous envoyer une demande de prise en charge à ce conducteur ?";
+            var texte = conducteur._source.nom + " est disponible à " + dist.toFixed(0) + "m, Souhaitez-vous envoyer une demande de prise en charge à ce conducteur ?";
+            
+            // On demande à l'autostoppeur si il souhaite envoyer une demande de prise en charge à ce conducteur
             $scope.showConfirm("Véhicule à proximité", texte);
           }
         }
       });
     }
 
+    // Fonction appelée pour rechercher les matchs de l'autostoppeur
     $scope.getMatchAutostoppeur = function(){
-      console.log("Recherche > getMatchAutostoppeur", "On recupère les matchs et on fait l'action associée");
+      console.log("rechercheController", "getMatchAutostoppeur");
+      // Requete elasticsearch cherchant les matchs du conducteur via son identifiant
       client.search({
         index: "matchs",
         body: {
@@ -210,16 +246,18 @@ angular.module('RechercheController', [])
         console.log("There was an error in elasticsearch request error : ", error);
         console.log("There was an error in elasticsearch request response : ", response);
         matchs = response.hits;
+        // Si il existe un match ayant cet autostoppeur
         if(response.hits.total>0){
-          console.log("ligne 698", "Il y a au moins un match pour l'autostoppeur");
+          // On stock le match en cours
           match = response.hits.hits[0];
           for(var i=1; i<response.hits.total; i++){
             if(response.hits.hits[i]._source.etat==1 || response.hits.hits[i]._source.etat==2){
               match = response.hits.hits[i];
             }
           }
-          console.log("ligne 705", "Etat du match séléctionné : " + match._source.etat);
+          // Selon l'état de ce match
           switch(match._source.etat){
+            // Cas si le conducteur a déjà était proposé
             case -2:
               $interval.cancel(intervalPromise);
               $scope.searchConducteur();
@@ -229,12 +267,14 @@ angular.module('RechercheController', [])
                 template: 'Recherche de véhicules en cours...'
               });
               break;
+            // Cas si le conducteur vient de quitter la prise en charge 
             case -1:
               $interval.cancel(intervalPromise);
               $scope.loading = $ionicLoading.show({
                 showBackdrop: false,
                 template: "Le conducteur a quitté la session..."
               });
+              // Requete elasticsearch supprimant ce match 
               client.delete({
                 index: 'matchs',
                 type: 'match',
@@ -244,13 +284,18 @@ angular.module('RechercheController', [])
                 console.log("There was an error in elasticsearch request response : ", response);
               });
               etat = 0;
+              // Nouvelle recherche d'un conducteur
               $timeout(function() {
                 $scope.searchConducteur();  
               }, 5000);
-              intervalPromise = $interval(function(){ $scope.searchConducteur(); }, 25000);
+              intervalPromise = $interval(function(){ 
+                $scope.searchConducteur(); }, 
+              25000);
               break;
+            // Cas si l'autostoppeur avait quitté une première fois la prise en charge par ce conducteur  
             case 0:
               break;
+            // Cas lorsqu'un autostoppeur demande à se faire prendre en charge par ce conducteur
             case 1:
               if(etat!=1){
                 $interval.cancel(intervalPromise);
@@ -259,10 +304,15 @@ angular.module('RechercheController', [])
                   template: 'En attente de la réponse du conducteur...'
                 });
                 $scope.checkMatchAutostoppeur();
-                intervalPromise = $interval(function(){ $scope.checkMatchAutostoppeur(); }, 25000);
+
+                intervalPromise = $interval(function(){ 
+                  $scope.checkMatchAutostoppeur(); 
+                }, 
+                25000);
                 etat = 1;
               }
               break;
+            // Cas lorsqu'un autostoppeur attend la réponse pour se faire prendre en charge par ce conducteur
             case 2:
               if(etat != 2){
                 $interval.cancel(intervalPromise);
@@ -272,7 +322,9 @@ angular.module('RechercheController', [])
                   template: "Demande acceptée par le conducteur, véhicule en approche (" + match._source.distance + ")"
                 });
                 $scope.checkMatchAutostoppeur();
-                intervalPromise = $interval(function(){ $scope.checkMatchAutostoppeur(); }, 25000);
+                intervalPromise = $interval(function(){ 
+                  $scope.checkMatchAutostoppeur(); 
+                }, 25000);
                 etat = 2;
               }
               else{
@@ -283,6 +335,7 @@ angular.module('RechercheController', [])
                 }
               }
               break;
+            // Cas lorsqu'un autostoppeur a pris en charge l'autostoppeur  
             case 3:
               $scope.resume();
               break;
@@ -291,10 +344,13 @@ angular.module('RechercheController', [])
           }
         }
         else{
-          console.log("ligne 770", "Pas de match pour l'autostoppeur");
+          console.log("rechercheController", "Pas de match pour l'autostoppeur");
           $interval.cancel(intervalPromise);
+          // Nouvelle recherche de conducteur
           $scope.searchConducteur();
-          intervalPromise = $interval(function(){ $scope.searchConducteur(); }, 25000);
+          intervalPromise = $interval(function(){ 
+            $scope.searchConducteur(); 
+          }, 25000);
           $scope.loading = $ionicLoading.show({
             showBackdrop: false,
             template: 'Recherche de véhicules en cours...'
@@ -303,6 +359,7 @@ angular.module('RechercheController', [])
       });
     }
 
+    // Fonction appelée lorsqu'un conducteur a été trouvé est à proximité
     $scope.showConfirm = function(title, question) {
        var confirmPopup = $ionicPopup.confirm({
          title: title,
@@ -312,8 +369,8 @@ angular.module('RechercheController', [])
          okType: 'button-balanced'
       });
       confirmPopup.then(function(res) {
+      // Si l'autostoppeur confirme la demande de prise en charge
        if(res) {
-          console.log("Ligne 792", "L'autostoppeur confirme l'envoi d'une demande de prise en charge");
           $interval.cancel(intervalPromise);
           var dist = distance(
             conducteur._source.location.lat,
@@ -331,6 +388,7 @@ angular.module('RechercheController', [])
             "M"
           );
 
+          // Requete elasticsearch enregistrant le match à l'état 1
           var match = client.index({
             index: 'matchs',
             type: 'match',
@@ -354,10 +412,12 @@ angular.module('RechercheController', [])
           });
 
           etat = 0;
-          intervalPromise = $interval(function(){ $scope.checkMatchAutostoppeur(); }, 25000);
+          intervalPromise = $interval(function(){ 
+            $scope.checkMatchAutostoppeur(); 
+          }, 25000);
         }
         else{
-          console.log("Ligne 836", "L'autostoppeur rejette l'envoi d'une demande de prise en charge");
+          // Sinon si l'autostoppeur ne souhaite pas envoyer de demande de prise en charge à ce conducteur
           $interval.cancel(intervalPromise);
           var dist = distance(
             conducteur._source.location.lat,
@@ -374,6 +434,8 @@ angular.module('RechercheController', [])
             parseFloat($stateParams.longitude),
             "M"
           );
+
+          // Requete elasticsearch enregistrant le match à l'état -2
           var match = client.index({
             index: 'matchs',
             type: 'match',
@@ -397,11 +459,14 @@ angular.module('RechercheController', [])
           });
 
           etat = 0;
-          intervalPromise = $interval(function(){ $scope.checkMatchAutostoppeur(); }, 25000);
+          intervalPromise = $interval(function(){ 
+            $scope.checkMatchAutostoppeur(); 
+          }, 25000);
         }
      });
     }
 
+    // Fonction appelée lorsque le conducteur est proche de l'autostoppeur
     $scope.showConfirmPris = function(title, question) {
        var confirmPopup = $ionicPopup.confirm({
          title: title,
@@ -410,124 +475,32 @@ angular.module('RechercheController', [])
          okText: 'Oui',
          okType: 'button-balanced'
       });
+      // Boite de dialogue demandant à l'autostoppeur si il a été trouvé par le conducteur
       confirmPopup.then(function(res) {
+      // Si il a trouvé le conducteur, on affiche un récapitulatif
        if(res) {
           $scope.resume();
         }
         else{
-          console.log("Ligne 925", "L'autostoppeur dit qu'il n'a pas été pris");
+          // Sinon on relance la recherche des matchs et on demandera de nouveau 
           $scope.loading = $ionicLoading.show({
             showBackdrop: false,
             template: "En attente de l'arrivé du conducteur..."
           });
           $interval.cancel(intervalPromise);
-          intervalPromise = $interval(function(){ $scope.checkMatchAutostoppeur(); }, 25000);
+          intervalPromise = $interval(function(){ 
+            $scope.checkMatchAutostoppeur(); 
+          }, 25000);
         }
      });
     }
 
-    $scope.resume = function(){
-      console.log("Ligne 976", "L'autostoppeur confirme qu'il a été pris");
-      $ionicLoading.hide();
-      $scope.showMap = false;
-      $ionicNavBarDelegate.showBar(false);
-
-      var dist = distance(
-        conducteur._source.location.lat,
-        conducteur._source.location.lon,
-        user._source.location.lat,
-        user._source.location.lon,
-        "M"
-      );
-
-      client.update({
-        index: 'matchs',
-        type: 'match',
-        id: match._id,
-        body: {
-          doc: {
-            distance: dist,
-            etat: 3
-          }
-        }
-      }, function (error, response) {
-        console.log("There was an error in elasticsearch request error : ", error);
-        console.log("There was an error in elasticsearch request response : ", response);
-      });
-
-      client.search({
-        index: "matchs",
-        body: {
-          query : {
-            match : {
-               autostoppeur: user._id
-            }
-          }
-        }
-      }, function (error, response) {
-        console.log("There was an error in elasticsearch request error : ", error);
-        console.log("There was an error in elasticsearch request response : ", response);
-        matchs = response.hits;
-        if(response.hits.total>0){
-          console.log("ligne 999", "On va supprimer les matchs en etat -2");
-          for(var i=0; i<response.hits.total; i++){
-            if(response.hits.hits[i]._source.etat==-2){
-              console.log("ligne 1019", response.hits.hits[i]._id + " supprimé")
-              client.delete({
-                index: 'matchs',
-                type: 'match',
-                id: response.hits.hits[i]._id
-              }, function (error2, response2) {
-                console.log("There was an error in elasticsearch request error : ", error2);
-                console.log("There was an error in elasticsearch request response : ", response2);
-              });
-            }
-          }
-        }
-      });
-
-      $interval.cancel(intervalPromise);
-      $scope.showMap = false;
-      $scope.participationDemandee=conducteur._source.participationDemandee.toFixed(2);
-      $scope.distanceTotale=match._source.distanceTotale.toFixed(0);
-      $scope.cout=match._source.cout.toFixed(2);
-    }
-
-    $scope.terminer = function(){
-      console.log("Recherche > exit", "On quitte la navigation");
-      $ionicLoading.hide();
-      //TODO SI exit Supprimer le match + mise à jour du match à 0
-
-      client.update({
-        index: 'users',
-        type: 'user',
-        id: 'google-oauth2|101046949406679467409', //profile.user_id
-        body: {
-          doc: {
-            role: 'visiteur',
-            location : {
-              lat: 0.0,
-              lon: 0.0
-            },
-            destination : {
-              lat: 0.0,
-              lon: 0.0
-            }
-          }
-        }
-      }, function (error, response) {
-        console.log("There was an error in elasticsearch request error : ", error);
-        console.log("There was an error in elasticsearch request response : ", response);
-      });
-      $interval.cancel(intervalPromise);
-      $location.path('/');
-    };
-
+    // Fonction appelée lorsque l'autostoppeur clique sur le bouton 'Quitter la navigation'
     $scope.exit = function(){
       console.log("Recherche > exit", "On quitte la navigation");
-      //TODO SI exit Supprimer le match + mise à jour du match à 0
-      console.log("match", JSON.stringify(match));
       $ionicLoading.hide();
+
+      // Requete elasticsearch mettant à jour le role, la location et la destination de l'autostoppeur
       client.update({
         index: 'users',
         type: 'user',
@@ -549,8 +522,11 @@ angular.module('RechercheController', [])
         console.log("There was an error in elasticsearch request error : ", error);
         console.log("There was an error in elasticsearch request response : ", response);
       });
+
+      // Si un match en cours ayant cet autostoppeur
       if(match != null){
         if(match._source.etat == -1){
+          // Requete elasticsearch supprimant tous le match
           client.delete({
             index: 'matchs',
             type: 'match',
@@ -561,6 +537,7 @@ angular.module('RechercheController', [])
           });
         }
         else{
+          // Requete elasticsearch mettant à jour l'état du match > etat -1
           client.update({
             index: 'matchs',
             type: 'match',
@@ -580,17 +557,103 @@ angular.module('RechercheController', [])
       $location.path('/');
     };
 
-    $scope.searchConducteur = function() {
-      console.log("Recherche > searchConducteur", "On cherche un conducteur");
-      $scope.getCurrentPosition();
-      $scope.updatePosition();
-      $scope.getConducteur();
+    // Fonction appelée lorsque l'autostoppeur a été pris en charge et click sur le bouton 'Continuer'
+    $scope.terminer = function(){
+      console.log("Recherche > exit", "On quitte la navigation");
+      $ionicLoading.hide();
+
+      // Requete elasticsearch mettant à jour le role, la location et la destination de l'autostoppeur
+      client.update({
+        index: 'users',
+        type: 'user',
+        id: 'google-oauth2|101046949406679467409', //profile.user_id
+        body: {
+          doc: {
+            role: 'visiteur',
+            location : {
+              lat: 0.0,
+              lon: 0.0
+            },
+            destination : {
+              lat: 0.0,
+              lon: 0.0
+            }
+          }
+        }
+      }, function (error, response) {
+        console.log("There was an error in elasticsearch request error : ", error);
+        console.log("There was an error in elasticsearch request response : ", response);
+      });
+      $interval.cancel(intervalPromise);
+      $location.path('/');
     };
 
-    $scope.checkMatchAutostoppeur = function() {
-      console.log("Recherche > checkMatchAutostoppeur", "On check les matchs de l'autostoppeur");
-      $scope.getCurrentPosition();
-      $scope.updatePosition();
-      $scope.getMatchAutostoppeur();
-    };
+    // Fonction appelée lorsque l'autostoppeur a atteint sa destination finale et click sur le bouton 'Continuer'
+    $scope.resume = function(){
+      $ionicLoading.hide();
+      $scope.showMap = false;
+      $ionicNavBarDelegate.showBar(false);
+
+      var dist = distance(
+        conducteur._source.location.lat,
+        conducteur._source.location.lon,
+        user._source.location.lat,
+        user._source.location.lon,
+        "M"
+      );
+
+      // Requete elasticsearch mettant à jour le match a l'état 3 lorsque l'autostoppeur a été trouvé
+      client.update({
+        index: 'matchs',
+        type: 'match',
+        id: match._id,
+        body: {
+          doc: {
+            distance: dist,
+            etat: 3
+          }
+        }
+      }, function (error, response) {
+        console.log("There was an error in elasticsearch request error : ", error);
+        console.log("There was an error in elasticsearch request response : ", response);
+      });
+
+      // Requete elasticsearch recherchant les matchs de l'autostoppeur
+      client.search({
+        index: "matchs",
+        body: {
+          query : {
+            match : {
+               autostoppeur: user._id
+            }
+          }
+        }
+      }, function (error, response) {
+        console.log("There was an error in elasticsearch request error : ", error);
+        console.log("There was an error in elasticsearch request response : ", response);
+        matchs = response.hits;
+        if(response.hits.total>0){
+          for(var i=0; i<response.hits.total; i++){
+            if(response.hits.hits[i]._source.etat==-2){
+              // Requete elasticsearch supprimant les matchs à l'état -2
+              client.delete({
+                index: 'matchs',
+                type: 'match',
+                id: response.hits.hits[i]._id
+              }, function (error2, response2) {
+                console.log("There was an error in elasticsearch request error : ", error2);
+                console.log("There was an error in elasticsearch request response : ", response2);
+              });
+            }
+          }
+        }
+      });
+
+      $interval.cancel(intervalPromise);
+      $scope.showMap = false;
+      // On envoi les données à la vue pour le récapitulatif
+      $scope.participationDemandee=conducteur._source.participationDemandee.toFixed(2);
+      $scope.distanceTotale=match._source.distanceTotale.toFixed(0);
+      $scope.cout=match._source.cout.toFixed(2);
+    }
   });
