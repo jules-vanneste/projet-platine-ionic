@@ -9,7 +9,7 @@ angular.module('AccueilController', [])
   client.get({
     index: 'users',
     type: 'user',
-    id: /*profile.user_id,*/ 'google-oauth2|101046949406679467409',
+    id: profile.user_id,/* 'google-oauth2|101046949406679467409',*/
   }, function (error, response) {
     console.log("There was an error in elasticsearch request error : ", error);
     console.log("There was an error in elasticsearch request response : ", response);

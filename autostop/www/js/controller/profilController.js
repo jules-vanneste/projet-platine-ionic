@@ -15,10 +15,10 @@ angular.module('ProfilController', [])
       client.index({
         index: 'users',
         type: 'user',
-        id: /*profile.user_id*/ 'google-oauth2|101046949406679467409',
+        id: profile.user_id,/* 'google-oauth2|101046949406679467409',*/
         body: {
           nom: user.nom,
-          mail: /*profile.email,*/ "jules.vanneste@gmail.com",
+          mail: profile.email,/* "jules.vanneste@gmail.com",*/
           marque: user.marque,
           modele: user.modele,
           couleur: user.couleur,

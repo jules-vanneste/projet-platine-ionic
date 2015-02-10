@@ -2,7 +2,8 @@ angular.module('RechercheController', [])
   .controller('RechercheCtrl', function($scope, $ionicLoading, $ionicNavBarDelegate, $ionicPopup, $compile, $stateParams, $timeout, $interval, $location, store, client) {
     var latitude, longitude, profile, user, conducteur, intervalPromise, matchs, match, etat=0;
     
-    $scope.hideBackButton = true;
+    //$scope.hidesBackButton = true;
+    $ionicNavBarDelegate.showBackButton(false);
 
     // Recuperation du profil et des données de l'utilisateur 
     profile = store.get('profile');
@@ -38,7 +39,7 @@ angular.module('RechercheController', [])
       client.update({
         index: 'users',
         type: 'user',
-        id: 'google-oauth2|101046949406679467409', //profile.user_id
+        id: profile.user_id,/* 'google-oauth2|101046949406679467409',*/
         body: {
           doc: {
             role: 'autostoppeur',
@@ -75,7 +76,7 @@ angular.module('RechercheController', [])
       client.update({
         index: 'users',
         type: 'user',
-        id: 'google-oauth2|101046949406679467409', //profile.user_id
+        id: profile.user_id,/* 'google-oauth2|101046949406679467409',*/
         body: {
           doc: {
             destination : {
@@ -91,7 +92,7 @@ angular.module('RechercheController', [])
         client.get({
           index: 'users',
           type: 'user',
-          id: /*profile.user_id,*/ 'google-oauth2|101046949406679467409',
+          id: profile.user_id,/* 'google-oauth2|101046949406679467409',*/
         }, function (error, response) {
           console.log("There was an error in elasticsearch request error : ", error);
           console.log("There was an error in elasticsearch request response : ", response);
@@ -394,7 +395,7 @@ angular.module('RechercheController', [])
             type: 'match',
             body: {
               conducteur: conducteur._id,
-              autostoppeur: 'google-oauth2|101046949406679467409', //profile.user_id,
+              autostoppeur: profile.user_id,/* 'google-oauth2|101046949406679467409',*/
               nom: user._source.nom,
               distance: parseFloat(dist.toFixed(0)),
               distanceTotale: parseFloat(distTotal.toFixed(0)),
@@ -441,7 +442,7 @@ angular.module('RechercheController', [])
             type: 'match',
             body: {
               conducteur: conducteur._id,
-              autostoppeur: 'google-oauth2|101046949406679467409', //profile.user_id,
+              autostoppeur: profile.user_id,/* 'google-oauth2|101046949406679467409',*/
               nom: user._source.nom,
               distance: parseFloat(dist.toFixed(0)),
               distanceTotale: parseFloat(distTotal.toFixed(0)),
@@ -504,7 +505,7 @@ angular.module('RechercheController', [])
       client.update({
         index: 'users',
         type: 'user',
-        id: 'google-oauth2|101046949406679467409', //profile.user_id
+        id: profile.user_id,/* 'google-oauth2|101046949406679467409',*/
         body: {
           doc: {
             role: 'visiteur',
@@ -525,7 +526,7 @@ angular.module('RechercheController', [])
 
       // Si un match en cours ayant cet autostoppeur
       if(match != null){
-        if(match._source.etat == -1){
+        if(match._source.etat == -1 ){
           // Requete elasticsearch supprimant tous le match
           client.delete({
             index: 'matchs',
@@ -566,7 +567,7 @@ angular.module('RechercheController', [])
       client.update({
         index: 'users',
         type: 'user',
-        id: 'google-oauth2|101046949406679467409', //profile.user_id
+        id: profile.user_id,/* 'google-oauth2|101046949406679467409',*/
         body: {
           doc: {
             role: 'visiteur',

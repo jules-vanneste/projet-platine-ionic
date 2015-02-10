@@ -17,39 +17,46 @@ angular.module('LoginController', [])
 
       $state.go('app.accueil');
 
-      //TODO
-      /*
-        Premiere connexion, données à vide ok mais si l'utilisateur se connecte une deuxieme fois ou +, ne pas reinitialiser les données
-      */
-      client.index({
+      client.get({
         index: 'users',
         type: 'user',
-        id: profile.user_id,
-        body: {
-          nom: profile.name,
-          mail: profile.email,
-          marque: '',
-          modele: '',
-          couleur: '',
-          nbPlaces: 0,
-          participationDemandee: 50,
-          detour: 3000,
-          participationMaximale: 50,
-          depose: 2000,
-          role: 'visiteur',
-          location : {
-              lat : 0.0,
-              lon : 0.0
-          },
-          destination : {
-              lat : 0.0,
-              lon : 0.0
-          },
-          match: 0
-        }
+        id: profile.user_id,/* 'google-oauth2|101046949406679467409',*/
       }, function (error, response) {
         console.log("There was an error in elasticsearch request error : ", error);
         console.log("There was an error in elasticsearch request response : ", response);
+
+        if(response.hits.total==0){
+          client.index({
+            index: 'users',
+            type: 'user',
+            id: profile.user_id,
+            body: {
+              nom: profile.name,
+              mail: profile.email,
+              marque: '',
+              modele: '',
+              couleur: '',
+              nbPlaces: 0,
+              participationDemandee: 50,
+              detour: 3000,
+              participationMaximale: 50,
+              depose: 2000,
+              role: 'visiteur',
+              location : {
+                  lat : 0.0,
+                  lon : 0.0
+              },
+              destination : {
+                  lat : 0.0,
+                  lon : 0.0
+              },
+              match: 0
+            }
+          }, function (error, response) {
+            console.log("There was an error in elasticsearch request error : ", error);
+            console.log("There was an error in elasticsearch request response : ", response);
+          });
+        }
       });
     }, function(error) {
       // Oops something went wrong during login:

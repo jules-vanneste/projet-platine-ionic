@@ -63,7 +63,7 @@ angular.module('starter', ['ionic', 'AppController', 'LoginController', 'Accueil
       templateUrl: "templates/menu.html",
       controller: 'AppCtrl',
       data: {
-        requiresLogin: false
+        requiresLogin: true
       }
     })
 

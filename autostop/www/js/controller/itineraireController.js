@@ -3,7 +3,8 @@ angular.module('ItineraireController', [])
     var latitude, longitude, profile, user, intervalPromise, match, autostoppeur, dist, etat=0;
     
     $scope.showMap = true;
-    $scope.hideBackButton = true;
+    //$scope.hideBackButton = true;
+    
     $scope.directionsService;
     $scope.directionsService = new google.maps.DirectionsService();
 
@@ -50,7 +51,7 @@ angular.module('ItineraireController', [])
       client.update({
         index: 'users',
         type: 'user',
-        id: 'google-oauth2|101046949406679467409', //profile.user_id
+        id: profile.user_id,/* 'google-oauth2|101046949406679467409',*/
         body: {
           doc: {
             role: 'conducteur',
@@ -120,7 +121,7 @@ angular.module('ItineraireController', [])
       client.update({
         index: 'users',
         type: 'user',
-        id: 'google-oauth2|101046949406679467409', //profile.user_id
+        id: profile.user_id,/* 'google-oauth2|101046949406679467409',*/
         body: {
           doc: {
             destination : {
@@ -137,7 +138,7 @@ angular.module('ItineraireController', [])
         client.get({
           index: 'users',
           type: 'user',
-          id: /*profile.user_id,*/ 'google-oauth2|101046949406679467409',
+          id: profile.user_id,/* 'google-oauth2|101046949406679467409',*/
         }, function (error, response) {
           console.log("There was an error in elasticsearch request error : ", error);
           console.log("There was an error in elasticsearch request response : ", response);
@@ -207,8 +208,8 @@ angular.module('ItineraireController', [])
               if(etat != 1){
                 $scope.getAutostoppeur();
                 $interval.cancel(intervalPromise);
-                $scope.showConfirm("Auto-stoppeur à proximité", match._source.nom + " recherche un véhicule. Cet auto-stoppeur se trouve à " + match._source.distance + "m de votre position. Souhaitez-vous le prendre en charge ?");
                 play("prendreAutoStoppeur.mp3");
+                $scope.showConfirm("Auto-stoppeur à proximité", match._source.nom + " recherche un véhicule. Cet auto-stoppeur se trouve à " + match._source.distance + "m de votre position. Souhaitez-vous le prendre en charge ?");
                 etat = 1;
               }
               break;
@@ -402,7 +403,7 @@ angular.module('ItineraireController', [])
       client.update({
         index: 'users',
         type: 'user',
-        id: 'google-oauth2|101046949406679467409', //profile.user_id
+        id: profile.user_id,/* 'google-oauth2|101046949406679467409',*/
         body: {
           doc: {
             role: 'visiteur',
@@ -423,7 +424,7 @@ angular.module('ItineraireController', [])
 
       // Si un match en cours ayant ce conducteur
       if(match != null){
-        if(match._source.etat == 0){
+        if(match._source.etat == 0 || match._source.etat == 3){
           // Requete elasticsearch supprimant le match
           client.delete({
             index: 'matchs',
@@ -463,7 +464,7 @@ angular.module('ItineraireController', [])
       client.update({
         index: 'users',
         type: 'user',
-        id: 'google-oauth2|101046949406679467409', //profile.user_id
+        id: profile.user_id,/* 'google-oauth2|101046949406679467409',*/
         body: {
           doc: {
             role: 'visiteur',
