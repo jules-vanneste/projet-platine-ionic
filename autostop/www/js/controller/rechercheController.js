@@ -227,6 +227,12 @@ angular.module('RechercheController', [])
             $scope.showConfirm("Véhicule à proximité", texte);
           }
         }
+        else{
+          $scope.loading = $ionicLoading.show({
+            showBackdrop: false,
+            template: 'Recherche de véhicules en cours...'
+          });
+        }
       });
     }
 
