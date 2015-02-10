@@ -1,3 +1,6 @@
+// Fonction permettant de calculer la distance entre deux points
+// Option K : distance en km
+// Option M : distance en m
 function distance(lat1, lon1, lat2, lon2, unit) {
      var radlat1 = Math.PI * lat1/180;
      var radlat2 = Math.PI * lat2/180;

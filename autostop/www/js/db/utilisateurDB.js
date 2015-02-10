@@ -1,32 +1,13 @@
 var db;
-/** création si non existance **/
-function ouvertureBDD() {
-	console.log('ouverture called');
-	var DBopenRequest = indexedDB.open("adressesDB", 1); //si la DB n'existe pas, elle sera créée
-	DBopenRequest.onerror = function(event) {
-	//Handle errors
-	};
 
-	DBopenRequest.onsuccess = function(event) {
-		console.log('La BDD existe');
-	  	db = DBopenRequest.result;
-	};
-
-	DBopenRequest.onupgradeneeded = function(event) {
-		console.log('Création de la BDD');
-		var db = event.target.result;
-		var objectStore = db.createObjectStore("adresses", { keyPath:"id", autoIncrement: true});
-		objectStore.createIndex("adresse", "adresse", {unique: true});
-		objectStore.createIndex("geo", "geo", {unique: false});
-	};
-}
-
-/* pas propre... */
+// Ouverture de la base de données interne adressesDB
 function ouvertureBDDandGetAdresses() {
 	console.log('ouverture called');
-	var DBopenRequest = indexedDB.open("adressesDB", 1); //si la DB n'existe pas, elle sera créée
+	// Option 1, Ouverture de la base de donnees si elle existe sinon si elle est créée
+	var DBopenRequest = indexedDB.open("adressesDB", 1);
+
 	DBopenRequest.onerror = function(event) {
-	//Handle errors
+		//Handle errors
 	};
 
 	DBopenRequest.onsuccess = function(event) {
@@ -43,14 +24,14 @@ function ouvertureBDDandGetAdresses() {
 	};
 }
 
-//ajout de données
-//data { adresse: string, geo: string }
+// Ajout d'une destination dans la base de données { adresse: string, geo: string }
 function addData(data) {
 	var defer = $.Deferred();
 	var isOk;
 	var transaction = db.transaction(["adresses"], "readwrite");
 	var objectStore = transaction.objectStore("adresses");
 	var request = objectStore.add(data);
+
 	request.onerror = function(event) {
 		console.log('Error in addData: '+ event.target.errorCode);
 		isOk = false;
@@ -60,22 +41,26 @@ function addData(data) {
 		isOk = true;
 		defer.resolve(isOk);
 	}
+
 	return defer.promise();
 }
 
+// Modification d'une destination dans la base de données
 function modifData(data) {
 	var transaction = db.transaction(["adresses"], "readwrite");
 	var objectStore = transaction.objectStore("adresses");
 	var request = objectStore.put(data);
+
 	request.onerror = function () {
 		console.log('Update error: ' + e)
 	}
+
 	request.onsuccess = function() {
 		getAdresses();
 	}
 }
 
-/** récupération de l'utilisateur et appel de la fonction d'affichage **/
+// Recupere les destinations dans la base de données
 function getAdresses(selectName) {
 	var defer = $.Deferred();
 	var listeAdresses = [];
@@ -96,6 +81,7 @@ function getAdresses(selectName) {
 	return defer.promise();
 }
 
+// Suppression de la base de données
 function deleteDB(name) {
 	console.log('delete called');
 	var request = window.indexedDB.deleteDatabase(name);
